@@ -1,14 +1,22 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { useRouter } from 'next/navigation';
+
+// Importa o hook de autenticação
+import { useAuth } from '@/hooks/useAuth';
+
+// Componentes (assumindo que os caminhos são os mesmos)
 import Sidebar from '../components/Sidebar';
 import KanbanColumn from '../components/KanbanColumn';
 import ProcessoDetalhe from '../components/ProcessoDetalhe';
 import ProcessoForm from '../components/ProcessoForm';
 
 // --- CONFIGURAÇÃO DA API ---
-const API_URL = 'https://api-sistema-jur.onrender.com/api/processos';
-// --------------------------
+// É importante usar apenas a URL base sem o '/processos'
+// const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'https://api-sistema-jur.onrender.com/api'; // Use esta linha em produção
+const API_PROCESSOS_URL = `${API_BASE_URL}/processos`;
 
 // --- CONSTANTES ---
 const FASES = [
@@ -27,6 +35,14 @@ const PRIORIDADES = [
 ];
 
 const Processos = () => {
+  const {
+    isAuthenticated,
+    isLoading: isAuthLoading,
+    getToken,
+    logout,
+  } = useAuth();
+  const router = useRouter();
+
   const [processos, setProcessos] = useState({});
   const [selectedProcesso, setSelectedProcesso] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,13 +55,68 @@ const Processos = () => {
   const [filterTipo, setFilterTipo] = useState('');
   const [filterPrioridade, setFilterPrioridade] = useState('');
 
+  // EFEITO DE PROTEÇÃO DE ROTA
+  useEffect(() => {
+    if (!isAuthLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+    // Quando autenticado, carrega os dados
+    if (isAuthenticated) {
+      loadProcessos();
+    }
+  }, [isAuthenticated, isAuthLoading, router]);
+
+  /**
+   * FUNÇÃO AUXILIAR PARA REQUISIÇÕES PROTEGIDAS
+   * @param {string} url - URL completa ou relativa (ex: /processos/123)
+   * @param {object} options - Opções do fetch
+   */
+  const fetchProtected = async (url, options = {}) => {
+    const token = getToken();
+    if (!token) {
+      // Se por algum motivo o token não estiver aqui, desloga
+      logout();
+      throw new Error(
+        'Token de autenticação ausente. Redirecionando para Login.'
+      );
+    }
+
+    const defaultHeaders = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`, // ADICIONA O TOKEN JWT AQUI
+    };
+
+    const config = {
+      ...options,
+      headers: {
+        ...defaultHeaders,
+        ...options.headers, // Permite sobrescrever o Content-Type se necessário
+      },
+    };
+
+    const response = await fetch(url, config);
+
+    if (response.status === 401 || response.status === 403) {
+      // Se a API retornar 401 ou 403 (Token inválido/expirado), desloga
+      logout();
+      throw new Error(
+        'Sessão expirada ou acesso negado. Faça login novamente.'
+      );
+    }
+
+    return response;
+  };
+
   /**
    * FUNÇÃO API: CARREGAR DADOS (GET)
+   * AGORA USANDO fetchProtected
    */
   const loadProcessos = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(API_URL);
+      const response = await fetchProtected(API_PROCESSOS_URL, {
+        method: 'GET',
+      });
       if (!response.ok) {
         throw new Error('Falha ao carregar dados da API');
       }
@@ -53,14 +124,11 @@ const Processos = () => {
       setProcessos(data);
     } catch (error) {
       console.error('Erro ao buscar processos:', error);
+      // Se o erro for por falha de auth, o useEffect ou fetchProtected já trata
     } finally {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadProcessos();
-  }, []);
 
   const handleSelectProcesso = (processo) => {
     setSelectedProcesso(processo);
@@ -119,14 +187,17 @@ const Processos = () => {
 
   /**
    * FUNÇÃO API: SALVAR EDIÇÃO (PUT)
+   * AGORA USANDO fetchProtected
    */
   const handleSaveEdit = async (editedProcess) => {
     try {
-      const response = await fetch(`${API_URL}/${editedProcess._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editedProcess),
-      });
+      const response = await fetchProtected(
+        `${API_PROCESSOS_URL}/${editedProcess._id}`,
+        {
+          method: 'PUT',
+          body: JSON.stringify(editedProcess),
+        }
+      );
 
       if (!response.ok) throw new Error('Falha ao salvar edição');
 
@@ -141,10 +212,12 @@ const Processos = () => {
         (p) => p._id === updatedProcess._id
       );
 
+      // Remove da fase antiga
       if (processIndex !== -1) {
         sourceList.splice(processIndex, 1);
       }
 
+      // Adiciona na fase nova (ou na mesma fase)
       if (!newProcessos[newFaseId]) {
         newProcessos[newFaseId] = [];
       }
@@ -155,6 +228,7 @@ const Processos = () => {
       setIsEditing(false);
     } catch (error) {
       console.error('Erro ao editar processo:', error);
+      alert('Erro ao salvar edição. Faça login novamente se necessário.');
     }
   };
 
@@ -169,8 +243,8 @@ const Processos = () => {
   };
 
   /**
-   * FUNÇÃO API: SALVAR NOVO PROCESSO (POST) - CORRIGIDA
-   * Garante que fase e histórico sejam enviados.
+   * FUNÇÃO API: SALVAR NOVO PROCESSO (POST)
+   * AGORA USANDO fetchProtected
    */
   const handleSaveNew = async (newProcess) => {
     const processToSend = {
@@ -189,9 +263,8 @@ const Processos = () => {
     };
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetchProtected(API_PROCESSOS_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(processToSend),
       });
 
@@ -225,14 +298,17 @@ const Processos = () => {
 
   /**
    * FUNÇÃO API: ADICIONAR ATUALIZAÇÃO (POST para endpoint de histórico)
+   * AGORA USANDO fetchProtected
    */
   const handleAddUpdate = async (processId, newDescription) => {
     try {
-      const response = await fetch(`${API_URL}/${processId}/historico`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ descricao: newDescription }),
-      });
+      const response = await fetchProtected(
+        `${API_PROCESSOS_URL}/${processId}/historico`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ descricao: newDescription }),
+        }
+      );
 
       if (!response.ok) throw new Error('Falha ao adicionar atualização');
 
@@ -253,15 +329,20 @@ const Processos = () => {
       setSelectedProcesso(updatedProcess);
     } catch (error) {
       console.error('Erro ao adicionar atualização:', error);
+      alert(
+        'Erro ao adicionar atualização. Faça login novamente se necessário.'
+      );
     }
   };
 
   /**
-   * FUNÇÃO API: EXCLUIR PROCESSO (DELETE) - NOVO
+   * FUNÇÃO API: EXCLUIR PROCESSO (DELETE)
+   * AGORA USANDO fetchProtected
    */
   const handleDeleteProcesso = async (processId, faseId) => {
+    // Usando modal customizado ou lib externa em vez de window.confirm em produção
     if (
-      !window.confirm(
+      !confirm(
         'Tem certeza que deseja excluir este processo? Esta ação é permanente.'
       )
     ) {
@@ -269,9 +350,13 @@ const Processos = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/${processId}`, {
-        method: 'DELETE',
-      });
+      const response = await fetchProtected(
+        `${API_PROCESSOS_URL}/${processId}`,
+        {
+          method: 'DELETE',
+          headers: {}, // Headers vazios para evitar o Content-Type: application/json no DELETE
+        }
+      );
 
       if (!response.ok) throw new Error('Falha ao excluir processo');
 
@@ -293,6 +378,7 @@ const Processos = () => {
 
   /**
    * FUNÇÃO API: DRAG AND DROP (PUT)
+   * AGORA USANDO fetchProtected
    */
   const onDragEnd = async (result) => {
     const { source, destination, draggableId } = result;
@@ -325,28 +411,39 @@ const Processos = () => {
 
     // 2. CHAMA A API REAL
     try {
-      await fetch(`${API_URL}/${process._id}`, {
+      await fetchProtected(`${API_PROCESSOS_URL}/${process._id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(process),
       });
     } catch (error) {
       console.error('Falha ao mover o processo na API.', error);
-      loadProcessos();
+      loadProcessos(); // Recarrega para reverter o estado em caso de falha
     }
   };
 
-  if (isLoading) {
+  if (isAuthLoading) {
     return (
-      <div className="p-10 text-center text-xl text-gray-500">
-        Carregando dados...
+      <div className="flex items-center justify-center min-h-screen text-xl text-gray-500">
+        Verificando autenticação...
+      </div>
+    );
+  }
+
+  // Se não estiver autenticado e o carregamento for concluído, o useEffect já redirecionou.
+  if (!isAuthenticated || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-xl text-gray-500">
+        Carregando processos...
       </div>
     );
   }
 
   return (
-    <div className="flex">
-      <Sidebar current="Processos" />
+    <div className="flex min-h-screen">
+      <Sidebar
+        current="Processos"
+        onLogout={logout} // Adiciona função de logout ao Sidebar
+      />
       <div
         className={`flex-1 p-6 transition-all ${
           selectedProcesso || isCreating ? 'ml-64 pr-96' : 'ml-64'
@@ -357,7 +454,7 @@ const Processos = () => {
             Gerenciamento de Processos
           </h2>
           <button
-            className="bg-[#A03232] hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            className="bg-[#A03232] hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md"
             onClick={handleNewProcessStart}
           >
             + Novo Processo
@@ -365,19 +462,19 @@ const Processos = () => {
         </header>
 
         {/* ÁREA DE FILTROS */}
-        <div className="flex space-x-4 mb-6 bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
+        <div className="flex space-x-4 mb-6 bg-gray-50 p-4 rounded-xl shadow-lg border border-gray-200">
           <input
             type="text"
             placeholder="Buscar por Cliente, N° Processo ou Próximo Passo"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            className="flex-1 p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500"
           />
 
           <select
             value={filterTipo}
             onChange={(e) => setFilterTipo(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white"
+            className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white"
           >
             <option value="">Todos os Tipos</option>
             {TIPOS_PROCESSO.map((tipo) => (
@@ -390,7 +487,7 @@ const Processos = () => {
           <select
             value={filterPrioridade}
             onChange={(e) => setFilterPrioridade(e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white"
+            className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white"
           >
             <option value="">Todas as Prioridades</option>
             {PRIORIDADES.map((prioridade) => (
@@ -406,7 +503,7 @@ const Processos = () => {
               setFilterTipo('');
               setFilterPrioridade('');
             }}
-            className="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+            className="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors shadow-md"
           >
             Limpar
           </button>

@@ -1,9 +1,11 @@
 'use client';
 import React from 'react';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.png'; // Comentado para evitar erro se 'logo.png' não estiver disponível
 import Image from 'next/image';
+import Link from 'next/link'; // Importa Link do Next para navegação
 
-// Ícones SVG simples (substituindo o uso de 'icon=""')
+// Ícones SVG simples
+// Ícone de Documento (Processos)
 const DocumentIcon = (props) => (
   <svg
     {...props}
@@ -22,49 +24,95 @@ const DocumentIcon = (props) => (
   </svg>
 );
 
-const Sidebar = ({ current }) => (
-  <div className="w-64 h-screen fixed bg-[#ffe8da] text-gray-300 p-5 flex flex-col justify-between">
+// Ícone de Logout
+const LogoutIcon = (props) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={1.5}
+    stroke="currentColor"
+    className="w-5 h-5"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H9"
+    />
+  </svg>
+);
+
+// Componente principal da Sidebar
+const Sidebar = ({ current, onLogout }) => (
+  <div className="w-64 h-screen fixed bg-[#ffe8da] text-gray-800 p-5 flex flex-col justify-between shadow-xl">
     <div>
-      {/* 1. SEÇÃO DO LOGO (MELHORADA) */}
+      {/* 1. SEÇÃO DO LOGO */}
       <div className="mb-10 flex flex-col items-start border-b border-gray-700 pb-4">
         <Image src={logo} alt="logotipo" srcset="" />
       </div>
 
       {/* 2. NAVEGAÇÃO */}
       <nav>
-        {/* Você pode incluir o Dashboard aqui se quiser */}
         <NavItem
-          icon={<DocumentIcon />} // Ícone de Processo
+          icon={<DocumentIcon />}
           label="Processos"
           href="/"
           isActive={current === 'Processos'}
         />
-
-        {/* Adicione mais NavItems aqui */}
+        {/* Você pode adicionar mais itens de navegação aqui */}
       </nav>
     </div>
 
-    {/* 3. RODAPÉ (Ex: Versão ou Usuário Logado) */}
-    <div className="text-xs text-gray-500 border-t border-gray-700 pt-4">
-      <p>Sistema Jurídico v1.0</p>
+    {/* 3. RODAPÉ e LOGOUT */}
+    <div className="text-sm border-t border-gray-300 pt-4">
+      {/* NOVO ITEM: LOGOUT */}
+      <NavItem
+        icon={<LogoutIcon />}
+        label="Sair"
+        // Não tem href, pois usaremos a função onClick
+        onClick={onLogout}
+        isLogout={true}
+      />
+
+      <p className="text-xs text-gray-500 mt-4">Sistema Jurídico v1.0</p>
     </div>
   </div>
 );
 
-const NavItem = ({ icon, label, href, isActive }) => (
-  <a
-    href={href}
-    className={`flex items-center p-3 my-1 rounded-lg transition-colors duration-200 
-      ${
-        isActive
-          ? 'bg-[#A03232] text-white shadow-lg'
-          : 'hover:bg-gray-700 text-gray-300'
-      }
-    `}
-  >
-    <span className="mr-3">{icon}</span>
-    <span className="font-medium">{label}</span>
-  </a>
-);
+// Componente NavItem ajustado para suportar links (Next.js Link) ou botões (onClick)
+const NavItem = ({
+  icon,
+  label,
+  href,
+  isActive,
+  onClick,
+  isLogout = false,
+}) => {
+  const commonClasses = `flex items-center p-3 my-1 rounded-lg transition-all duration-200 font-medium ${
+    isActive
+      ? 'bg-[#A03232] text-white shadow-lg'
+      : isLogout
+      ? 'text-gray-600 hover:bg-red-200 hover:text-red-700'
+      : 'text-gray-700 hover:bg-gray-200'
+  }`;
+
+  if (href) {
+    return (
+      <Link href={href} className={commonClasses}>
+        <span className="mr-3">{icon}</span>
+        <span>{label}</span>
+      </Link>
+    );
+  }
+
+  // Renderiza como botão se houver onClick
+  return (
+    <button onClick={onClick} className={`${commonClasses} w-full text-left`}>
+      <span className="mr-3">{icon}</span>
+      <span>{label}</span>
+    </button>
+  );
+};
 
 export default Sidebar;
