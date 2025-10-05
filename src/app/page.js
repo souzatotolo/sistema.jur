@@ -67,9 +67,7 @@ const Processos = () => {
   }, [isAuthenticated, isAuthLoading, router]);
 
   /**
-   * FUNÇÃO AUXILIAR PARA REQUISIÇÕES PROTEGIDAS
-   * @param {string} url - URL completa ou relativa (ex: /processos/123)
-   * @param {object} options - Opções do fetch
+   * FUNÇÃO AUXILIAR PARA REQUISIÇÕES PROTEGIDAS (Mantida)
    */
   const fetchProtected = async (url, options = {}) => {
     const token = getToken();
@@ -108,8 +106,7 @@ const Processos = () => {
   };
 
   /**
-   * FUNÇÃO API: CARREGAR DADOS (GET)
-   * AGORA USANDO fetchProtected
+   * FUNÇÃO API: CARREGAR DADOS (GET) (Mantida)
    */
   const loadProcessos = async () => {
     setIsLoading(true);
@@ -173,7 +170,7 @@ const Processos = () => {
 
   const filteredProcessos = getFilteredProcesses();
 
-  // --- Funções CRUD CONECTADAS À API ---
+  // --- Funções CRUD CONECTADAS À API --- (Mantidas)
 
   const handleEditStart = () => {
     if (selectedProcesso) {
@@ -186,8 +183,7 @@ const Processos = () => {
   };
 
   /**
-   * FUNÇÃO API: SALVAR EDIÇÃO (PUT)
-   * AGORA USANDO fetchProtected
+   * FUNÇÃO API: SALVAR EDIÇÃO (PUT) (Mantida)
    */
   const handleSaveEdit = async (editedProcess) => {
     try {
@@ -243,8 +239,7 @@ const Processos = () => {
   };
 
   /**
-   * FUNÇÃO API: SALVAR NOVO PROCESSO (POST)
-   * AGORA USANDO fetchProtected
+   * FUNÇÃO API: SALVAR NOVO PROCESSO (POST) (Mantida)
    */
   const handleSaveNew = async (newProcess) => {
     const processToSend = {
@@ -297,8 +292,7 @@ const Processos = () => {
   };
 
   /**
-   * FUNÇÃO API: ADICIONAR ATUALIZAÇÃO (POST para endpoint de histórico)
-   * AGORA USANDO fetchProtected
+   * FUNÇÃO API: ADICIONAR ATUALIZAÇÃO (POST para endpoint de histórico) (Mantida)
    */
   const handleAddUpdate = async (processId, newDescription) => {
     try {
@@ -336,8 +330,7 @@ const Processos = () => {
   };
 
   /**
-   * FUNÇÃO API: EXCLUIR PROCESSO (DELETE)
-   * AGORA USANDO fetchProtected
+   * FUNÇÃO API: EXCLUIR PROCESSO (DELETE) (Mantida)
    */
   const handleDeleteProcesso = async (processId, faseId) => {
     // Usando modal customizado ou lib externa em vez de window.confirm em produção
@@ -368,7 +361,7 @@ const Processos = () => {
       );
 
       setProcessos(newProcessos);
-      setSelectedProcesso(null); // Fecha o painel de detalhes
+      setSelectedProcesso(null); // Fechar o painel de detalhes
       setIsEditing(false);
     } catch (error) {
       console.error('Erro ao excluir processo:', error);
@@ -377,8 +370,7 @@ const Processos = () => {
   };
 
   /**
-   * FUNÇÃO API: DRAG AND DROP (PUT)
-   * AGORA USANDO fetchProtected
+   * FUNÇÃO API: DRAG AND DROP (PUT) (Mantida)
    */
   const onDragEnd = async (result) => {
     const { source, destination, draggableId } = result;
@@ -439,94 +431,104 @@ const Processos = () => {
   }
 
   return (
+    // AQUI USAMOS h-screen E flex-col PARA CONTROLAR MELHOR O FLUXO
     <div className="flex min-h-screen">
       <Sidebar
         current="Processos"
         onLogout={logout} // Adiciona função de logout ao Sidebar
       />
+      {/* ALTERAÇÃO PRINCIPAL: Adiciona 'flex-col' e 'h-screen' aqui para usar 'flex-grow' abaixo */}
       <div
-        className={`flex-1 p-6 transition-all ${
+        className={`flex-1 flex flex-col h-screen transition-all ${
           selectedProcesso || isCreating ? 'ml-64 pr-96' : 'ml-64'
         }`}
       >
-        <header className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-red">
-            Gerenciamento de Processos
-          </h2>
-          <button
-            className="bg-[#A03232] hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md"
-            onClick={handleNewProcessStart}
-          >
-            + Novo Processo
-          </button>
-        </header>
+        {/* CONTEÚDO FIXO (Header e Filtros) */}
+        <div className="p-6">
+          <header className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold text-red">
+              Gerenciamento de Processos
+            </h2>
+            <button
+              className="bg-[#A03232] hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md"
+              onClick={handleNewProcessStart}
+            >
+              + Novo Processo
+            </button>
+          </header>
 
-        {/* ÁREA DE FILTROS */}
-        <div className="flex space-x-4 mb-6 bg-gray-50 p-4 rounded-xl shadow-lg border border-gray-200">
-          <input
-            type="text"
-            placeholder="Buscar por Cliente, N° Processo ou Próximo Passo"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500"
-          />
+          {/* ÁREA DE FILTROS */}
+          <div className="flex space-x-4 mb-6 bg-gray-50 p-4 rounded-xl shadow-lg border border-gray-200">
+            <input
+              type="text"
+              placeholder="Buscar por Cliente, N° Processo ou Próximo Passo"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500"
+            />
 
-          <select
-            value={filterTipo}
-            onChange={(e) => setFilterTipo(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white"
-          >
-            <option value="">Todos os Tipos</option>
-            {TIPOS_PROCESSO.map((tipo) => (
-              <option key={tipo} value={tipo}>
-                {tipo}
-              </option>
-            ))}
-          </select>
+            <select
+              value={filterTipo}
+              onChange={(e) => setFilterTipo(e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white"
+            >
+              <option value="">Todos os Tipos</option>
+              {TIPOS_PROCESSO.map((tipo) => (
+                <option key={tipo} value={tipo}>
+                  {tipo}
+                </option>
+              ))}
+            </select>
 
-          <select
-            value={filterPrioridade}
-            onChange={(e) => setFilterPrioridade(e.target.value)}
-            className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white"
-          >
-            <option value="">Todas as Prioridades</option>
-            {PRIORIDADES.map((prioridade) => (
-              <option key={prioridade} value={prioridade}>
-                {prioridade}
-              </option>
-            ))}
-          </select>
+            <select
+              value={filterPrioridade}
+              onChange={(e) => setFilterPrioridade(e.target.value)}
+              className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white"
+            >
+              <option value="">Todas as Prioridades</option>
+              {PRIORIDADES.map((prioridade) => (
+                <option key={prioridade} value={prioridade}>
+                  {prioridade}
+                </option>
+              ))}
+            </select>
 
-          <button
-            onClick={() => {
-              setSearchTerm('');
-              setFilterTipo('');
-              setFilterPrioridade('');
-            }}
-            className="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors shadow-md"
-          >
-            Limpar
-          </button>
-        </div>
-        {/* FIM DA ÁREA DE FILTROS */}
-
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex space-x-4 overflow-x-auto pb-4 h-[calc(100vh-270px)]">
-            {FASES.map((fase) => (
-              <KanbanColumn
-                key={fase}
-                title={fase}
-                faseId={fase}
-                processos={filteredProcessos[fase] || []}
-                onCardClick={handleSelectProcesso}
-                onNewProcessClick={handleNewProcessStart}
-              />
-            ))}
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setFilterTipo('');
+                setFilterPrioridade('');
+              }}
+              className="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors shadow-md"
+            >
+              Limpar
+            </button>
           </div>
-        </DragDropContext>
+          {/* FIM DA ÁREA DE FILTROS */}
+        </div>
+
+        {/* ÁREA ROLÁVEL (Kanban) */}
+        {/* Usa flex-grow para ocupar o espaço restante e overflow-y-hidden para prevenir rolagem desnecessária no corpo */}
+        <div className="flex-grow overflow-hidden px-6">
+          <DragDropContext onDragEnd={onDragEnd}>
+            {/* Usa 'h-full' e 'overflow-y-auto' para o contêiner das colunas */}
+            <div className="flex space-x-4 overflow-x-auto pb-4 w-full h-full">
+              {FASES.map((fase) => (
+                <KanbanColumn
+                  key={fase}
+                  title={fase}
+                  faseId={fase}
+                  processos={filteredProcessos[fase] || []}
+                  onCardClick={handleSelectProcesso}
+                  onNewProcessClick={handleNewProcessStart}
+                />
+              ))}
+            </div>
+          </DragDropContext>
+        </div>
       </div>
 
-      {/* PAINEL LATERAL CONDICIONAL */}
+      {/* PAINEL LATERAL CONDICIONAL (Mantido) */}
       {isCreating ? (
         <ProcessoForm
           processo={{}}
