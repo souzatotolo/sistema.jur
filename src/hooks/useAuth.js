@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 const AUTH_TOKEN_KEY = 'authToken';
 
 // URL da sua API de Autenticação. Corrigi a porta para 3001, que é onde seu server.js está rodando.
-const API_URL = 'http://localhost:3001/api/auth/login';
+const API_URL = 'https://api-sistema-jur.onrender.com/api/auth/login';
 
 /**
  * Função simples para gerar um token de mock (falso).

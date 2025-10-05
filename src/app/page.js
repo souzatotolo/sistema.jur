@@ -7,7 +7,7 @@ import ProcessoDetalhe from '../components/ProcessoDetalhe';
 import ProcessoForm from '../components/ProcessoForm';
 
 // --- CONFIGURAÇÃO DA API ---
-const API_URL = 'http://localhost:3001/api/processos';
+const API_URL = 'https://api-sistema-jur.onrender.com/api/processos';
 // --------------------------
 
 // --- CONSTANTES ---
