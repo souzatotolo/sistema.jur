@@ -353,7 +353,7 @@ const Processos = () => {
         }`}
       >
         <header className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-red-900">
+          <h2 className="text-3xl font-bold text-red">
             Gerenciamento de Processos
           </h2>
           <button
