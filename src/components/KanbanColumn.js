@@ -11,7 +11,7 @@ const KanbanColumn = ({
   onNewProcessClick,
 }) => {
   return (
-    <div className="flex-shrink-0 w-65 bg-gray-100 rounded-xl p-3 shadow-inner h-full">
+    <div className="flex-shrink-0 w-85 bg-gray-100 rounded-xl p-3 shadow-inner h-full">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-bold text-lg text-gray-800">{title}</h3>
         <span className="bg-gray-300 text-gray-700 text-sm font-medium px-2 py-0.5 rounded-full">

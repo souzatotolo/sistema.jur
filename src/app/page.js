@@ -12,25 +12,23 @@ import Sidebar from '../components/Sidebar';
 import KanbanColumn from '../components/KanbanColumn';
 import ProcessoDetalhe from '../components/ProcessoDetalhe';
 import ProcessoForm from '../components/ProcessoForm';
+import ProcessosTable from '../components/ProcessosTable'; // NOVO: Importação do componente de Tabela
+import { compareProcessosByPriority } from '../utils/priority-utils'; // NOVO: Importação do utilitário de ordenação
 
 // --- CONFIGURAÇÃO DA API ---
 const API_BASE_URL = 'https://api-sistema-jur.onrender.com/api';
 const API_PROCESSOS_URL = `${API_BASE_URL}/processos`;
 
 // --- CONSTANTES ---
-const FASES = [
-  'Pré-processual',
-  'Averiguação de Docmt.',
-  'Processual',
-  'Finalizado/Arquivado',
-];
+const FASES = ['Pré-processual', 'Averiguação de Docmt.', 'Processual'];
 
 const TIPOS_PROCESSO = ['Cível', 'Trabalhista', 'Criminal', 'Previdenciário'];
 
+// NOTA: Esta lista PRIORIDADES deve ser atualizada para refletir a ordem do PRIORITY_RANK no utils/priority-utils.js
 const PRIORIDADES = [
+  'Prazo Processual',
   'Fazer com prioridade',
   'Aguardando (Cliente)',
-  'Prazo Processual',
   'Aguardando (Andamento Processual)',
   'Normal',
 ];
@@ -50,6 +48,9 @@ const Processos = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+
+  // --- NOVO ESTADO DE VISUALIZAÇÃO ---
+  const [viewMode, setViewMode] = useState('table'); // 'kanban' ou 'table'
 
   // --- ESTADOS DE FILTRO ---
   const [searchTerm, setSearchTerm] = useState('');
@@ -121,7 +122,7 @@ const Processos = () => {
     setIsCreating(false);
   };
 
-  // --- FILTRAGEM ---
+  // --- FILTRAGEM (Retorna agrupado por fase - Ideal para Kanban) ---
   const getFilteredProcesses = () => {
     let allProcesses = [];
     FASES.forEach((fase) => {
@@ -146,13 +147,26 @@ const Processos = () => {
 
     const groupedFiltered = {};
     FASES.forEach((fase) => {
+      // Nota: Não ordenamos aqui para manter a ordem do Kanban (se existir)
       groupedFiltered[fase] = filtered.filter((p) => p.fase === fase);
     });
 
     return groupedFiltered;
   };
 
-  const filteredProcessos = getFilteredProcesses();
+  const filteredProcessosGrouped = getFilteredProcesses();
+
+  // --- FILTRAGEM E ORDENAÇÃO GLOBAL (Retorna lista plana e ordenada - Ideal para Tabela) ---
+  const getTableProcesses = () => {
+    let allFiltered = [];
+    FASES.forEach((fase) => {
+      allFiltered = allFiltered.concat(filteredProcessosGrouped[fase] || []);
+    });
+    // Sort by priority (highest priority first) using the utility function
+    return allFiltered.sort(compareProcessosByPriority);
+  };
+
+  const filteredProcessosTable = getTableProcesses();
 
   // --- FUNÇÕES CRUD ---
   const handleEditStart = () => {
@@ -193,6 +207,7 @@ const Processos = () => {
       setIsEditing(false);
     } catch (error) {
       console.error('Erro ao editar processo:', error);
+      // Substituído por alerta para compatibilidade, mas idealmente seria um modal
       alert('Erro ao salvar edição. Faça login novamente se necessário.');
     }
   };
@@ -248,6 +263,7 @@ const Processos = () => {
       setIsCreating(false);
     } catch (error) {
       console.error('Erro ao criar processo:', error);
+      // Substituído por alerta para compatibilidade, mas idealmente seria um modal
       alert(`Erro ao salvar: ${error.message}`);
     }
   };
@@ -278,6 +294,7 @@ const Processos = () => {
       setSelectedProcesso(updatedProcess);
     } catch (error) {
       console.error('Erro ao adicionar atualização:', error);
+      // Substituído por alerta para compatibilidade, mas idealmente seria um modal
       alert(
         'Erro ao adicionar atualização. Faça login novamente se necessário.'
       );
@@ -285,6 +302,7 @@ const Processos = () => {
   };
 
   const handleDeleteProcesso = async (processId, faseId) => {
+    // NOTE: Este confirm deve ser substituído por um modal/diálogo customizado
     if (
       !confirm(
         'Tem certeza que deseja excluir este processo? Esta ação é permanente.'
@@ -313,6 +331,7 @@ const Processos = () => {
       setIsEditing(false);
     } catch (error) {
       console.error('Erro ao excluir processo:', error);
+      // Substituído por alerta para compatibilidade, mas idealmente seria um modal
       alert('Erro ao excluir: ' + error.message);
     }
   };
@@ -367,15 +386,22 @@ const Processos = () => {
     );
   }
 
+  const tabClass = (mode) =>
+    `py-2 px-4 font-semibold text-lg transition-colors border-b-4 ${
+      viewMode === mode
+        ? 'border-red-600 text-red-600'
+        : 'border-transparent text-gray-500 hover:text-red-500'
+    }`;
+
   return (
     <div className="flex min-h-screen w-screen overflow-x-hidden relative">
       <Sidebar current="Processos" onLogout={logout} />
 
       <div className="flex-1 flex flex-col h-screen transition-all max-w-full overflow-hidden ml-64">
         <div className="p-6">
-          {/* Header e Filtros */}
-          <header className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-bold text-red">
+          {/* Header e Botão Novo Processo */}
+          <header className="flex justify-between items-center mb-4">
+            <h2 className="text-3xl font-bold text-gray-900">
               Gerenciamento de Processos
             </h2>
             <button
@@ -386,6 +412,23 @@ const Processos = () => {
             </button>
           </header>
 
+          {/* Tabs de Visualização */}
+          <div className="flex border-b border-gray-200 mb-6">
+            <button
+              onClick={() => setViewMode('table')}
+              className={tabClass('table')}
+            >
+              Tabela (Prioridade)
+            </button>
+            <button
+              onClick={() => setViewMode('kanban')}
+              className={tabClass('kanban')}
+            >
+              Quadro (Kanban)
+            </button>
+          </div>
+
+          {/* Filtros */}
           <div className="flex flex-wrap gap-4 mb-6 bg-gray-50 p-4 rounded-xl shadow-lg border border-gray-200">
             <input
               type="text"
@@ -432,20 +475,29 @@ const Processos = () => {
         </div>
 
         <div className="flex-grow overflow-auto px-6">
-          <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex space-x-4 overflow-x-auto pb-4 w-full h-full">
-              {FASES.map((fase) => (
-                <KanbanColumn
-                  key={fase}
-                  title={fase}
-                  faseId={fase}
-                  processos={filteredProcessos[fase] || []}
-                  onCardClick={handleSelectProcesso}
-                  onNewProcessClick={handleNewProcessStart}
-                />
-              ))}
-            </div>
-          </DragDropContext>
+          {viewMode === 'kanban' ? (
+            /* Conteúdo Kanban */
+            <DragDropContext onDragEnd={onDragEnd}>
+              <div className="flex space-x-4 overflow-x-auto pb-4 w-full h-full">
+                {FASES.map((fase) => (
+                  <KanbanColumn
+                    key={fase}
+                    title={fase}
+                    faseId={fase}
+                    processos={filteredProcessosGrouped[fase] || []}
+                    onCardClick={handleSelectProcesso}
+                    onNewProcessClick={handleNewProcessStart}
+                  />
+                ))}
+              </div>
+            </DragDropContext>
+          ) : (
+            /* Conteúdo Tabela */
+            <ProcessosTable
+              processos={filteredProcessosTable}
+              onProcessoClick={handleSelectProcesso}
+            />
+          )}
         </div>
       </div>
 

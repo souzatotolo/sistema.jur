@@ -6,11 +6,15 @@ const getPriorityColor = (status) => {
   // ... (Mantido o mesmo código de cores)
   switch (status) {
     case 'Fazer com prioridade':
-      return 'border-red-500';
+      return 'border-orange-500';
     case 'Aguardando (Cliente)':
       return 'border-yellow-500';
+    case 'Aguardando (Andamento Processual)':
+      return 'border-green-500';
     case 'Prazo Processual':
-      return 'border-blue-500';
+      return 'border-red-500';
+    case 'Audiência agendada':
+      return 'border-purple-500';
     default:
       return 'border-green-500';
   }
@@ -29,7 +33,7 @@ const ProcessoCard = ({ processo, onClick, index }) => {
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`bg-white shadow-md rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow border-l-4 ${colorClass}`}
+          className={`bg-white shadow-md rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow border-l-7 ${colorClass}`}
           onClick={() => onClick(processo)}
           // A classe mb-4 foi movida para o KanbanColumn para melhor espaçamento DND
         >
@@ -39,6 +43,15 @@ const ProcessoCard = ({ processo, onClick, index }) => {
           <p className="text-xs text-gray-500 mb-2">
             {processo.numProcesso || 'Nº Pendente'}
           </p>
+          <b
+            className={`text-sm mb-2 inline-block ${colorClass.replace(
+              'border-',
+              'text-'
+            )}`}
+          >
+            {processo.statusPrioridade}
+          </b>
+          <br />
 
           {/* Tag Tipo */}
           <span className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-2">
@@ -52,9 +65,9 @@ const ProcessoCard = ({ processo, onClick, index }) => {
                 Prazo: {new Date(processo.prazo).toLocaleDateString('pt-BR')}
               </p>
             )}
-            <p className="text-gray-600">
+            <b className="text-gray-600">
               Próximo Passo: {processo.proximoPasso}
-            </p>
+            </b>
           </div>
         </div>
       )}
