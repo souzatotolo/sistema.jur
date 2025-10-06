@@ -67,7 +67,7 @@ const ProcessoDetalhe = ({
       className="fixed top-0 right-0 w-150 h-full bg-white shadow-2xl z-40 overflow-y-auto border-l border-gray-200"
     >
       {/* Cabeçalho do Painel */}
-      <div className="p-5 border-b sticky top-0 bg-white z-10 flex justify-between items-center">
+      <div className="p-5 border-b sticky top-0 bg-[#ffe8da6f] z-10 flex justify-between items-center">
         <h2 className="text-xl font-bold text-gray-800">
           {processo.nomeCliente}
         </h2>
