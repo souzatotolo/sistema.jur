@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { useRouter } from 'next/navigation';
@@ -6,26 +7,26 @@ import { useRouter } from 'next/navigation';
 // Importa o hook de autenticação
 import { useAuth } from '@/hooks/useAuth';
 
-// Componentes (assumindo que os caminhos são os mesmos)
+// Componentes
 import Sidebar from '../components/Sidebar';
 import KanbanColumn from '../components/KanbanColumn';
 import ProcessoDetalhe from '../components/ProcessoDetalhe';
 import ProcessoForm from '../components/ProcessoForm';
 
 // --- CONFIGURAÇÃO DA API ---
-// É importante usar apenas a URL base sem o '/processos'
-// const API_BASE_URL = 'http://localhost:3001/api';
-const API_BASE_URL = 'https://api-sistema-jur.onrender.com/api'; // Use esta linha em produção
+const API_BASE_URL = 'https://api-sistema-jur.onrender.com/api';
 const API_PROCESSOS_URL = `${API_BASE_URL}/processos`;
 
 // --- CONSTANTES ---
 const FASES = [
   'Pré-processual',
-  'Averiguação de Documentos',
+  'Averiguação de Docmt.',
   'Processual',
   'Finalizado/Arquivado',
 ];
+
 const TIPOS_PROCESSO = ['Cível', 'Trabalhista', 'Criminal', 'Previdenciário'];
+
 const PRIORIDADES = [
   'Fazer com prioridade',
   'Aguardando (Cliente)',
@@ -55,24 +56,20 @@ const Processos = () => {
   const [filterTipo, setFilterTipo] = useState('');
   const [filterPrioridade, setFilterPrioridade] = useState('');
 
-  // EFEITO DE PROTEÇÃO DE ROTA
+  // --- PROTEÇÃO DE ROTA ---
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {
       router.push('/login');
     }
-    // Quando autenticado, carrega os dados
     if (isAuthenticated) {
       loadProcessos();
     }
   }, [isAuthenticated, isAuthLoading, router]);
 
-  /**
-   * FUNÇÃO AUXILIAR PARA REQUISIÇÕES PROTEGIDAS (Mantida)
-   */
+  // --- FUNÇÃO AUXILIAR PARA REQUISIÇÕES PROTEGIDAS ---
   const fetchProtected = async (url, options = {}) => {
     const token = getToken();
     if (!token) {
-      // Se por algum motivo o token não estiver aqui, desloga
       logout();
       throw new Error(
         'Token de autenticação ausente. Redirecionando para Login.'
@@ -81,21 +78,17 @@ const Processos = () => {
 
     const defaultHeaders = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`, // ADICIONA O TOKEN JWT AQUI
+      Authorization: `Bearer ${token}`,
     };
 
     const config = {
       ...options,
-      headers: {
-        ...defaultHeaders,
-        ...options.headers, // Permite sobrescrever o Content-Type se necessário
-      },
+      headers: { ...defaultHeaders, ...options.headers },
     };
 
     const response = await fetch(url, config);
 
     if (response.status === 401 || response.status === 403) {
-      // Se a API retornar 401 ou 403 (Token inválido/expirado), desloga
       logout();
       throw new Error(
         'Sessão expirada ou acesso negado. Faça login novamente.'
@@ -105,23 +98,18 @@ const Processos = () => {
     return response;
   };
 
-  /**
-   * FUNÇÃO API: CARREGAR DADOS (GET) (Mantida)
-   */
+  // --- CARREGAR PROCESSOS ---
   const loadProcessos = async () => {
     setIsLoading(true);
     try {
       const response = await fetchProtected(API_PROCESSOS_URL, {
         method: 'GET',
       });
-      if (!response.ok) {
-        throw new Error('Falha ao carregar dados da API');
-      }
+      if (!response.ok) throw new Error('Falha ao carregar dados da API');
       const data = await response.json();
       setProcessos(data);
     } catch (error) {
       console.error('Erro ao buscar processos:', error);
-      // Se o erro for por falha de auth, o useEffect ou fetchProtected já trata
     } finally {
       setIsLoading(false);
     }
@@ -133,9 +121,7 @@ const Processos = () => {
     setIsCreating(false);
   };
 
-  /**
-   * FUNÇÃO DE FILTRAGEM (Mantida)
-   */
+  // --- FILTRAGEM ---
   const getFilteredProcesses = () => {
     let allProcesses = [];
     FASES.forEach((fase) => {
@@ -144,7 +130,6 @@ const Processos = () => {
 
     const filtered = allProcesses.filter((processo) => {
       const lowerSearchTerm = searchTerm.toLowerCase();
-
       const matchSearch = searchTerm
         ? processo.nomeCliente?.toLowerCase().includes(lowerSearchTerm) ||
           processo.numProcesso?.toLowerCase().includes(lowerSearchTerm) ||
@@ -152,7 +137,6 @@ const Processos = () => {
         : true;
 
       const matchTipo = filterTipo ? processo.tipo === filterTipo : true;
-
       const matchPrioridade = filterPrioridade
         ? processo.statusPrioridade === filterPrioridade
         : true;
@@ -170,21 +154,13 @@ const Processos = () => {
 
   const filteredProcessos = getFilteredProcesses();
 
-  // --- Funções CRUD CONECTADAS À API --- (Mantidas)
-
+  // --- FUNÇÕES CRUD ---
   const handleEditStart = () => {
-    if (selectedProcesso) {
-      setIsEditing(true);
-    }
+    if (selectedProcesso) setIsEditing(true);
   };
 
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-  };
+  const handleCancelEdit = () => setIsEditing(false);
 
-  /**
-   * FUNÇÃO API: SALVAR EDIÇÃO (PUT) (Mantida)
-   */
   const handleSaveEdit = async (editedProcess) => {
     try {
       const response = await fetchProtected(
@@ -198,7 +174,6 @@ const Processos = () => {
       if (!response.ok) throw new Error('Falha ao salvar edição');
 
       const updatedProcess = await response.json();
-
       const oldFaseId = selectedProcesso.fase;
       const newFaseId = updatedProcess.fase;
       const newProcessos = { ...processos };
@@ -208,15 +183,9 @@ const Processos = () => {
         (p) => p._id === updatedProcess._id
       );
 
-      // Remove da fase antiga
-      if (processIndex !== -1) {
-        sourceList.splice(processIndex, 1);
-      }
+      if (processIndex !== -1) sourceList.splice(processIndex, 1);
 
-      // Adiciona na fase nova (ou na mesma fase)
-      if (!newProcessos[newFaseId]) {
-        newProcessos[newFaseId] = [];
-      }
+      if (!newProcessos[newFaseId]) newProcessos[newFaseId] = [];
       newProcessos[newFaseId].unshift(updatedProcess);
 
       setProcessos(newProcessos);
@@ -234,13 +203,8 @@ const Processos = () => {
     setIsCreating(true);
   };
 
-  const handleCancelNew = () => {
-    setIsCreating(false);
-  };
+  const handleCancelNew = () => setIsCreating(false);
 
-  /**
-   * FUNÇÃO API: SALVAR NOVO PROCESSO (POST) (Mantida)
-   */
   const handleSaveNew = async (newProcess) => {
     const processToSend = {
       ...newProcess,
@@ -273,13 +237,10 @@ const Processos = () => {
       }
 
       const createdProcess = await response.json();
-
       const newFaseId = createdProcess.fase;
       const newProcessos = { ...processos };
 
-      if (!newProcessos[newFaseId]) {
-        newProcessos[newFaseId] = [];
-      }
+      if (!newProcessos[newFaseId]) newProcessos[newFaseId] = [];
       newProcessos[newFaseId].unshift(createdProcess);
 
       setProcessos(newProcessos);
@@ -291,9 +252,6 @@ const Processos = () => {
     }
   };
 
-  /**
-   * FUNÇÃO API: ADICIONAR ATUALIZAÇÃO (POST para endpoint de histórico) (Mantida)
-   */
   const handleAddUpdate = async (processId, newDescription) => {
     try {
       const response = await fetchProtected(
@@ -307,17 +265,14 @@ const Processos = () => {
       if (!response.ok) throw new Error('Falha ao adicionar atualização');
 
       const updatedProcess = await response.json();
-
       const newProcessos = { ...processos };
       const fase = updatedProcess.fase;
-
       const processIndex = (newProcessos[fase] || []).findIndex(
         (p) => p._id === processId
       );
 
-      if (processIndex !== -1) {
+      if (processIndex !== -1)
         newProcessos[fase][processIndex] = updatedProcess;
-      }
 
       setProcessos(newProcessos);
       setSelectedProcesso(updatedProcess);
@@ -329,39 +284,32 @@ const Processos = () => {
     }
   };
 
-  /**
-   * FUNÇÃO API: EXCLUIR PROCESSO (DELETE) (Mantida)
-   */
   const handleDeleteProcesso = async (processId, faseId) => {
-    // Usando modal customizado ou lib externa em vez de window.confirm em produção
     if (
       !confirm(
         'Tem certeza que deseja excluir este processo? Esta ação é permanente.'
       )
-    ) {
+    )
       return;
-    }
 
     try {
       const response = await fetchProtected(
         `${API_PROCESSOS_URL}/${processId}`,
         {
           method: 'DELETE',
-          headers: {}, // Headers vazios para evitar o Content-Type: application/json no DELETE
+          headers: {},
         }
       );
 
       if (!response.ok) throw new Error('Falha ao excluir processo');
 
-      // LÓGICA DE ATUALIZAÇÃO DO ESTADO (Remove do frontend)
       const newProcessos = { ...processos };
-
       newProcessos[faseId] = (newProcessos[faseId] || []).filter(
         (p) => p._id !== processId
       );
 
       setProcessos(newProcessos);
-      setSelectedProcesso(null); // Fechar o painel de detalhes
+      setSelectedProcesso(null);
       setIsEditing(false);
     } catch (error) {
       console.error('Erro ao excluir processo:', error);
@@ -369,39 +317,29 @@ const Processos = () => {
     }
   };
 
-  /**
-   * FUNÇÃO API: DRAG AND DROP (PUT) (Mantida)
-   */
   const onDragEnd = async (result) => {
     const { source, destination, draggableId } = result;
-
     if (!destination) return;
-
     const sourceFaseId = source.droppableId;
     const destinationFaseId = destination.droppableId;
-
     if (
       sourceFaseId === destinationFaseId &&
       source.index === destination.index
     )
       return;
 
-    // 1. LÓGICA DE ATUALIZAÇÃO OTIMISTA
     const newProcessos = { ...processos };
     const [process] = newProcessos[sourceFaseId].splice(source.index, 1);
-
     process.fase = destinationFaseId;
-    if (!newProcessos[destinationFaseId]) {
-      newProcessos[destinationFaseId] = [];
-    }
-    newProcessos[destinationFaseId].splice(destination.index, 0, process);
-    setProcessos(newProcessos);
 
+    if (!newProcessos[destinationFaseId]) newProcessos[destinationFaseId] = [];
+    newProcessos[destinationFaseId].splice(destination.index, 0, process);
+
+    setProcessos(newProcessos);
     if (selectedProcesso && selectedProcesso._id === draggableId) {
       setSelectedProcesso({ ...process });
     }
 
-    // 2. CHAMA A API REAL
     try {
       await fetchProtected(`${API_PROCESSOS_URL}/${process._id}`, {
         method: 'PUT',
@@ -409,7 +347,7 @@ const Processos = () => {
       });
     } catch (error) {
       console.error('Falha ao mover o processo na API.', error);
-      loadProcessos(); // Recarrega para reverter o estado em caso de falha
+      loadProcessos();
     }
   };
 
@@ -421,7 +359,6 @@ const Processos = () => {
     );
   }
 
-  // Se não estiver autenticado e o carregamento for concluído, o useEffect já redirecionou.
   if (!isAuthenticated || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen text-xl text-gray-500">
@@ -431,20 +368,12 @@ const Processos = () => {
   }
 
   return (
-    // AQUI USAMOS h-screen E flex-col PARA CONTROLAR MELHOR O FLUXO
-    <div className="flex min-h-screen">
-      <Sidebar
-        current="Processos"
-        onLogout={logout} // Adiciona função de logout ao Sidebar
-      />
-      {/* ALTERAÇÃO PRINCIPAL: Adiciona 'flex-col' e 'h-screen' aqui para usar 'flex-grow' abaixo */}
-      <div
-        className={`flex-1 flex flex-col h-screen transition-all ${
-          selectedProcesso || isCreating ? 'ml-64 pr-96' : 'ml-64'
-        }`}
-      >
-        {/* CONTEÚDO FIXO (Header e Filtros) */}
+    <div className="flex min-h-screen w-screen overflow-x-hidden relative">
+      <Sidebar current="Processos" onLogout={logout} />
+
+      <div className="flex-1 flex flex-col h-screen transition-all max-w-full overflow-hidden ml-64">
         <div className="p-6">
+          {/* Header e Filtros */}
           <header className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-bold text-red">
               Gerenciamento de Processos
@@ -457,20 +386,18 @@ const Processos = () => {
             </button>
           </header>
 
-          {/* ÁREA DE FILTROS */}
-          <div className="flex space-x-4 mb-6 bg-gray-50 p-4 rounded-xl shadow-lg border border-gray-200">
+          <div className="flex flex-wrap gap-4 mb-6 bg-gray-50 p-4 rounded-xl shadow-lg border border-gray-200">
             <input
               type="text"
               placeholder="Buscar por Cliente, N° Processo ou Próximo Passo"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500"
+              className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500"
             />
-
             <select
               value={filterTipo}
               onChange={(e) => setFilterTipo(e.target.value)}
-              className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white"
+              className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white min-w-[150px]"
             >
               <option value="">Todos os Tipos</option>
               {TIPOS_PROCESSO.map((tipo) => (
@@ -479,11 +406,10 @@ const Processos = () => {
                 </option>
               ))}
             </select>
-
             <select
               value={filterPrioridade}
               onChange={(e) => setFilterPrioridade(e.target.value)}
-              className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white"
+              className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white min-w-[180px]"
             >
               <option value="">Todas as Prioridades</option>
               {PRIORIDADES.map((prioridade) => (
@@ -492,26 +418,21 @@ const Processos = () => {
                 </option>
               ))}
             </select>
-
             <button
               onClick={() => {
                 setSearchTerm('');
                 setFilterTipo('');
                 setFilterPrioridade('');
               }}
-              className="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors shadow-md"
+              className="bg-gray-300 text-gray-800 font-bold py-3 w-25 px-4 rounded-lg hover:bg-gray-400 transition-colors shadow-md"
             >
               Limpar
             </button>
           </div>
-          {/* FIM DA ÁREA DE FILTROS */}
         </div>
 
-        {/* ÁREA ROLÁVEL (Kanban) */}
-        {/* Usa flex-grow para ocupar o espaço restante e overflow-y-hidden para prevenir rolagem desnecessária no corpo */}
-        <div className="flex-grow overflow-hidden px-6">
+        <div className="flex-grow overflow-auto px-6">
           <DragDropContext onDragEnd={onDragEnd}>
-            {/* Usa 'h-full' e 'overflow-y-auto' para o contêiner das colunas */}
             <div className="flex space-x-4 overflow-x-auto pb-4 w-full h-full">
               {FASES.map((fase) => (
                 <KanbanColumn
@@ -528,40 +449,45 @@ const Processos = () => {
         </div>
       </div>
 
-      {/* PAINEL LATERAL CONDICIONAL (Mantido) */}
-      {isCreating ? (
-        <ProcessoForm
-          processo={{}}
-          fases={FASES}
-          tipos={TIPOS_PROCESSO}
-          prioridades={PRIORIDADES}
-          onSave={handleSaveNew}
-          onCancel={handleCancelNew}
-          isNew={true}
-        />
-      ) : selectedProcesso && isEditing ? (
-        <ProcessoForm
-          processo={selectedProcesso}
-          fases={FASES}
-          tipos={TIPOS_PROCESSO}
-          prioridades={PRIORIDADES}
-          onSave={handleSaveEdit}
-          onCancel={handleCancelEdit}
-        />
-      ) : selectedProcesso && !isEditing ? (
-        <ProcessoDetalhe
-          processo={selectedProcesso}
-          onClose={() => setSelectedProcesso(null)}
-          onEditStart={handleEditStart}
-          onAddUpdate={(description) =>
-            handleAddUpdate(selectedProcesso._id, description)
-          }
-          // PASSA A FUNÇÃO DE EXCLUSÃO
-          onDelete={() =>
-            handleDeleteProcesso(selectedProcesso._id, selectedProcesso.fase)
-          }
-        />
-      ) : null}
+      {(isCreating || selectedProcesso) && (
+        <div className="absolute top-0 right-0 h-full w-full sm:w-96 bg-white shadow-xl z-50 overflow-auto transition-transform">
+          {isCreating ? (
+            <ProcessoForm
+              processo={{}}
+              fases={FASES}
+              tipos={TIPOS_PROCESSO}
+              prioridades={PRIORIDADES}
+              onSave={handleSaveNew}
+              onCancel={handleCancelNew}
+              isNew={true}
+            />
+          ) : selectedProcesso && isEditing ? (
+            <ProcessoForm
+              processo={selectedProcesso}
+              fases={FASES}
+              tipos={TIPOS_PROCESSO}
+              prioridades={PRIORIDADES}
+              onSave={handleSaveEdit}
+              onCancel={handleCancelEdit}
+            />
+          ) : selectedProcesso && !isEditing ? (
+            <ProcessoDetalhe
+              processo={selectedProcesso}
+              onClose={() => setSelectedProcesso(null)}
+              onEditStart={handleEditStart}
+              onAddUpdate={(description) =>
+                handleAddUpdate(selectedProcesso._id, description)
+              }
+              onDelete={() =>
+                handleDeleteProcesso(
+                  selectedProcesso._id,
+                  selectedProcesso.fase
+                )
+              }
+            />
+          ) : null}
+        </div>
+      )}
     </div>
   );
 };

@@ -14,7 +14,6 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: 'Sistema Jurídico - Marta Neumann Advogada',
   description: 'sistema de gestão de processos jurídicos',
-  viewport: 'width=device-width, initial-scale=1.0',
 };
 
 export default function RootLayout({ children }) {
