@@ -32,9 +32,6 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
         return `${base} bg-gray-200 text-gray-700 border border-gray-400`;
     }
   };
-
-  // Função auxiliar para formatar a data ISO para DD/MM/YYYY
-  // Função auxiliar para formatar a data ISO para DD/MM/YYYY
   const formatDeadlineDate = (isoString) => {
     if (!isoString) return '-';
     try {
