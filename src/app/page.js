@@ -20,7 +20,13 @@ const API_BASE_URL = 'https://api-sistema-jur.onrender.com/api';
 const API_PROCESSOS_URL = `${API_BASE_URL}/processos`;
 
 // --- CONSTANTES ---
-const FASES = ['Pré-processual', 'Averiguação de Docmt.', 'Processual'];
+const FASES = [
+  'Pré-processual',
+  'Analise de Doc.',
+  'Processual',
+  'Finalizado',
+  'Arquivado',
+];
 
 const TIPOS_PROCESSO = ['Cível', 'Trabalhista', 'Criminal', 'Previdenciário'];
 
@@ -31,6 +37,8 @@ const PRIORIDADES = [
   'Aguardando (Cliente)',
   'Aguardando (Andamento Processual)',
   'Normal',
+  'Em analise - Iraci',
+  'Em analise - Ivana',
 ];
 
 const Processos = () => {
