@@ -36,6 +36,7 @@ const ProcessoForm = ({
     prazo: formatDateForInput(processo.prazo),
     audiencia: formatDateForInput(processo.audiencia),
     primeiroContato: formatDateForInput(processo.primeiroContato),
+    ultimoContato: formatDateForInput(processo.ultimoContato),
   });
   // ---------------------------------
 
@@ -77,6 +78,9 @@ const ProcessoForm = ({
         : null,
       primeiroContato: formData.primeiroContato
         ? new Date(formData.primeiroContato + 'T00:00:00')
+        : null,
+      ultimoContato: formData.ultimoContato
+        ? new Date(formData.ultimoContato + 'T00:00:00')
         : null,
     };
 
@@ -194,6 +198,13 @@ const ProcessoForm = ({
           label="Primeiro Contato"
           name="primeiroContato"
           value={formData.primeiroContato || ''}
+          onChange={handleChange}
+          type="date"
+        />
+        <InputField
+          label="Último Contato"
+          name="ultimoContato"
+          value={formData.ultimoContato || ''}
           onChange={handleChange}
           type="date"
         />

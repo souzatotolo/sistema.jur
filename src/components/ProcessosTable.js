@@ -77,7 +77,7 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
       // Se o prazo já expirou (incluindo hoje), ou é muito curto
       if (diffTime <= 0) {
         // Vermelho sólido para prazo expirado
-        return `${baseClass} bg-red-500 text-white`;
+        return `${baseClass} bg-red-200 text-red-700 rounded border border-red-400`;
       }
 
       // Diferença em dias
@@ -210,7 +210,7 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {processo.ultimoContato || '-'}
+                  {formatDeadlineDate(processo.ultimoContato) || '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-normal text-sm text-gray-700 max-w-xs">
                   {processo.indicacao || '-'}
