@@ -155,6 +155,12 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6"
             >
+              Audiencia
+            </th>
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6"
+            >
               Indicação
             </th>
             <th
@@ -178,7 +184,7 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
           {processos.length === 0 ? (
             <tr>
               <td
-                colSpan="6"
+                colSpan="8"
                 className="px-6 py-8 text-center text-gray-500 text-lg"
               >
                 Nenhum processo encontrado com os filtros aplicados.
@@ -211,6 +217,9 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                   {formatDeadlineDate(processo.ultimoContato) || '-'}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  {formatDate(processo.audiencia) || '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-normal text-sm text-gray-700 max-w-xs">
                   {processo.indicacao || '-'}
