@@ -23,12 +23,22 @@ const API_PROCESSOS_URL = `${API_BASE_URL}/processos`;
 const FASES = [
   'Pré-processual',
   'Analise de Doc.',
-  'Processual',
-  'Finalizado',
-  'Arquivado',
+  'Extra-Judicial',
+  'Judicial',
 ];
 
-const TIPOS_PROCESSO = ['Cível', 'Trabalhista', 'Criminal', 'Previdenciário'];
+const TIPOS_PROCESSO = [
+  'Cível',
+  'Trabalhista',
+  'Divorcio',
+  'Previdenciário',
+  'Familia e Sucessões',
+  'Consumidor',
+  'Contratual',
+  'Indenizatória',
+  'Imobiliária',
+  'Outros',
+];
 
 // NOTA: Esta lista PRIORIDADES deve ser atualizada para refletir a ordem do PRIORITY_RANK no utils/priority-utils.js
 const PRIORIDADES = [
@@ -39,6 +49,9 @@ const PRIORIDADES = [
   'Normal',
   'Em analise - Iraci',
   'Em analise - Ivana',
+  'Audiência Marcada',
+  'Finalizado',
+  'Arquivado',
 ];
 
 const Processos = () => {
@@ -81,7 +94,7 @@ const Processos = () => {
     if (!token) {
       logout();
       throw new Error(
-        'Token de autenticação ausente. Redirecionando para Login.'
+        'Token de autenticação ausente. Redirecionando para Login.',
       );
     }
 
@@ -100,7 +113,7 @@ const Processos = () => {
     if (response.status === 401 || response.status === 403) {
       logout();
       throw new Error(
-        'Sessão expirada ou acesso negado. Faça login novamente.'
+        'Sessão expirada ou acesso negado. Faça login novamente.',
       );
     }
 
@@ -190,7 +203,7 @@ const Processos = () => {
         {
           method: 'PUT',
           body: JSON.stringify(editedProcess),
-        }
+        },
       );
 
       if (!response.ok) throw new Error('Falha ao salvar edição');
@@ -202,7 +215,7 @@ const Processos = () => {
 
       const sourceList = newProcessos[oldFaseId] || [];
       const processIndex = sourceList.findIndex(
-        (p) => p._id === updatedProcess._id
+        (p) => p._id === updatedProcess._id,
       );
 
       if (processIndex !== -1) sourceList.splice(processIndex, 1);
@@ -255,7 +268,7 @@ const Processos = () => {
         throw new Error(
           `Falha ao criar novo processo: ${
             errorData.message || response.statusText
-          }`
+          }`,
         );
       }
 
@@ -283,7 +296,7 @@ const Processos = () => {
         {
           method: 'POST',
           body: JSON.stringify({ descricao: newDescription }),
-        }
+        },
       );
 
       if (!response.ok) throw new Error('Falha ao adicionar atualização');
@@ -292,7 +305,7 @@ const Processos = () => {
       const newProcessos = { ...processos };
       const fase = updatedProcess.fase;
       const processIndex = (newProcessos[fase] || []).findIndex(
-        (p) => p._id === processId
+        (p) => p._id === processId,
       );
 
       if (processIndex !== -1)
@@ -304,7 +317,7 @@ const Processos = () => {
       console.error('Erro ao adicionar atualização:', error);
       // Substituído por alerta para compatibilidade, mas idealmente seria um modal
       alert(
-        'Erro ao adicionar atualização. Faça login novamente se necessário.'
+        'Erro ao adicionar atualização. Faça login novamente se necessário.',
       );
     }
   };
@@ -313,7 +326,7 @@ const Processos = () => {
     // NOTE: Este confirm deve ser substituído por um modal/diálogo customizado
     if (
       !confirm(
-        'Tem certeza que deseja excluir este processo? Esta ação é permanente.'
+        'Tem certeza que deseja excluir este processo? Esta ação é permanente.',
       )
     )
       return;
@@ -324,14 +337,14 @@ const Processos = () => {
         {
           method: 'DELETE',
           headers: {},
-        }
+        },
       );
 
       if (!response.ok) throw new Error('Falha ao excluir processo');
 
       const newProcessos = { ...processos };
       newProcessos[faseId] = (newProcessos[faseId] || []).filter(
-        (p) => p._id !== processId
+        (p) => p._id !== processId,
       );
 
       setProcessos(newProcessos);
@@ -541,7 +554,7 @@ const Processos = () => {
               onDelete={() =>
                 handleDeleteProcesso(
                   selectedProcesso._id,
-                  selectedProcesso.fase
+                  selectedProcesso.fase,
                 )
               }
             />

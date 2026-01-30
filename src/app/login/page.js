@@ -152,9 +152,7 @@ const LoginForm = () => {
             type="submit"
             disabled={loading}
             className={`w-full py-3 text-white rounded-md font-semibold transition-colors ${
-              loading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-[#A03232] hover:bg-red-800'
+              loading ? 'bg-gray-200 ' : 'bg-[#A03232] hover:bg-red-800'
             }`}
           >
             {loading ? 'Entrando...' : 'Entrar'}

@@ -197,7 +197,7 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={getPriorityBadgeClasses(
-                      processo.statusPrioridade
+                      processo.statusPrioridade,
                     )}
                   >
                     {processo.statusPrioridade || 'Normal'}

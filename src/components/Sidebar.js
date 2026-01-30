@@ -3,7 +3,11 @@ import React from 'react';
 import logo from '../assets/logo.png'; // Comentado para evitar erro se 'logo.png' não estiver disponível
 import Image from 'next/image';
 import Link from 'next/link'; // Importa Link do Next para navegação
-import { MdOutlineDocumentScanner, MdAssignmentLate } from 'react-icons/md';
+import {
+  MdOutlineDocumentScanner,
+  MdAssignmentLate,
+  MdArchive,
+} from 'react-icons/md';
 
 // Ícones SVG simples
 // Ícone de Documento (Processos)
@@ -62,11 +66,12 @@ const Sidebar = ({ current, onLogout }) => (
           isActive={current === 'Processos'}
         />
         <NavItem
-          icon={<MdAssignmentLate />}
-          label="Publicações - Em Desenvolvimento"
-          disabled={true}
-          isActive={current === 'Publicações'}
+          icon={<MdArchive />}
+          label="Arquivo / Financeiro"
+          href="/arquivo-financeiro"
+          isActive={current === 'Arquivo / Financeiro'}
         />
+
         {/* Você pode adicionar mais itens de navegação aqui */}
       </nav>
     </div>
@@ -100,8 +105,8 @@ const NavItem = ({
     isActive
       ? 'bg-[#A03232] text-white shadow-lg hover:bg-red-900'
       : isLogout
-      ? 'text-gray-600 hover:bg-red-200 hover:text-red-700'
-      : 'text-white-700 hover:bg-gray-500 hover:text-white cursor-not-allowed'
+        ? 'text-gray-600 hover:bg-red-200 hover:text-red-700'
+        : 'text-white-700 hover:bg-red-900 hover:text-white '
   }`;
 
   if (href) {
