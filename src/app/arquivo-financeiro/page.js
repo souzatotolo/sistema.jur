@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 // Componentes
 import Sidebar from '../../components/Sidebar';
 import PagamentoForm from '../../components/PagamentoForm';
+import GeradorRecibo from '../../components/GeradorRecibo';
 
 // --- CONFIGURAÇÃO DA API ---
 const API_BASE_URL = 'https://api-sistema-jur.onrender.com/api';
@@ -47,6 +48,7 @@ const ArquivoFinanceiro = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProcesso, setSelectedProcesso] = useState(null);
   const [isEditingPagamento, setIsEditingPagamento] = useState(false);
+  const [isGeneratingRecibo, setIsGeneratingRecibo] = useState(false);
   const [financialData, setFinancialData] = useState({
     entradasMensais: 0,
     entradasFuturas: 0,
@@ -496,12 +498,20 @@ const ArquivoFinanceiro = () => {
         </div>
       </div>
 
-      {selectedProcesso && (
+      {selectedProcesso && isGeneratingRecibo && (
+        <GeradorRecibo
+          processo={selectedProcesso}
+          onClose={() => setIsGeneratingRecibo(false)}
+        />
+      )}
+
+      {selectedProcesso && !isGeneratingRecibo && (
         <div className="absolute top-0 right-0 h-full w-full sm:w-96 bg-white shadow-xl z-50 overflow-auto transition-transform">
           <PagamentoForm
             processo={selectedProcesso}
             onSave={handleSavePagamento}
             onCancel={handleCancelPagamento}
+            onGenerateRecibo={() => setIsGeneratingRecibo(true)}
           />
         </div>
       )}

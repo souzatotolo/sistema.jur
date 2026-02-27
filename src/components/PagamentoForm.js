@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const PagamentoForm = ({ processo, onSave, onCancel }) => {
+const PagamentoForm = ({ processo, onSave, onCancel, onGenerateRecibo }) => {
   const [pagamento, setPagamento] = useState({
     status: 'Não Pago',
     totalPago: 0,
@@ -206,20 +206,31 @@ const PagamentoForm = ({ processo, onSave, onCancel }) => {
           </button>
         </div>
 
-        <div className="flex space-x-2">
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Salvar
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Cancelar
-          </button>
+        <div className="flex flex-col space-y-2">
+          <div className="flex space-x-2">
+            <button
+              type="submit"
+              className="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Salvar
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Cancelar
+            </button>
+          </div>
+          {onGenerateRecibo && pagamento.status === 'Pago' && (
+            <button
+              type="button"
+              onClick={onGenerateRecibo}
+              className="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 font-semibold"
+            >
+              📄 Gerar Recibo
+            </button>
+          )}
         </div>
       </form>
     </div>
