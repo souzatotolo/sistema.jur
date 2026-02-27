@@ -204,9 +204,7 @@ const Processos = () => {
 
     // Filter to only active processes (not finalized or archived)
     const activeFiltered = filtered.filter(
-      (p) =>
-        p.statusPrioridade !== 'Finalizado' &&
-        p.statusPrioridade !== 'Arquivado',
+      (p) => p.statusPrioridade !== 'Arquivado',
     );
 
     // Sort by priority (highest priority first) using the utility function
