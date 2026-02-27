@@ -240,14 +240,12 @@ const ArquivoFinanceiro = () => {
 
   return (
     <div className="flex min-h-screen w-screen overflow-x-hidden relative">
-      <Sidebar current="Arquivo / Financeiro" onLogout={logout} />
+      <Sidebar current="Financeiro" onLogout={logout} />
 
       <div className="flex-1 flex flex-col h-screen transition-all max-w-full overflow-hidden ml-64">
         <div className="p-6">
           <header className="mb-4">
-            <h2 className="text-3xl font-bold text-gray-900">
-              Arquivo / Financeiro
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-900">Financeiro</h2>
             <p className="text-gray-600">
               Todos os processos com informações de pagamento, separados por
               ativos e finalizados/arquivados.

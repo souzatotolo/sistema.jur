@@ -67,9 +67,9 @@ const Sidebar = ({ current, onLogout }) => (
         />
         <NavItem
           icon={<MdArchive />}
-          label="Arquivo / Financeiro"
+          label="Financeiro"
           href="/arquivo-financeiro"
-          isActive={current === 'Arquivo / Financeiro'}
+          isActive={current === 'Financeiro'}
         />
 
         {/* Você pode adicionar mais itens de navegação aqui */}

@@ -179,12 +179,38 @@ const Processos = () => {
 
   // --- FILTRAGEM E ORDENAÇÃO GLOBAL (Retorna lista plana e ordenada - Ideal para Tabela) ---
   const getTableProcesses = () => {
-    let allFiltered = [];
-    FASES.forEach((fase) => {
-      allFiltered = allFiltered.concat(filteredProcessosGrouped[fase] || []);
+    // Get all processes from all phases
+    let allProcesses = [];
+    Object.values(processos).forEach((fase) => {
+      allProcesses = allProcesses.concat(fase || []);
     });
+
+    // Apply search and filter
+    const filtered = allProcesses.filter((processo) => {
+      const lowerSearchTerm = searchTerm.toLowerCase();
+      const matchSearch = searchTerm
+        ? processo.nomeCliente?.toLowerCase().includes(lowerSearchTerm) ||
+          processo.numProcesso?.toLowerCase().includes(lowerSearchTerm) ||
+          processo.proximoPasso?.toLowerCase().includes(lowerSearchTerm)
+        : true;
+
+      const matchTipo = filterTipo ? processo.tipo === filterTipo : true;
+      const matchPrioridade = filterPrioridade
+        ? processo.statusPrioridade === filterPrioridade
+        : true;
+
+      return matchSearch && matchTipo && matchPrioridade;
+    });
+
+    // Filter to only active processes (not finalized or archived)
+    const activeFiltered = filtered.filter(
+      (p) =>
+        p.statusPrioridade !== 'Finalizado' &&
+        p.statusPrioridade !== 'Arquivado',
+    );
+
     // Sort by priority (highest priority first) using the utility function
-    return allFiltered.sort(compareProcessosByPriority);
+    return activeFiltered.sort(compareProcessosByPriority);
   };
 
   const filteredProcessosTable = getTableProcesses();
