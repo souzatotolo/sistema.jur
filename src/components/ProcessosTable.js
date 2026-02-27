@@ -159,7 +159,7 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
               scope="col"
               className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6"
             >
-              Audiencia
+              Audiência
             </th>
             <th
               scope="col"
@@ -222,7 +222,7 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                   {formatDeadlineDate(processo.ultimoContato) || '-'}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-700">
                   {formatDate(processo.audiencia) || '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-normal text-sm text-gray-700 max-w-xs">

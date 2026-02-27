@@ -196,6 +196,43 @@ const Calendario = () => {
 
   const eventosDodia = getEventosDodia();
 
+  // --- PRÓXIMOS PRAZOS E AUDIÊNCIAS (separados) ---
+  // monta todos os eventos a partir dos processos e filtra futuros
+  const _todosEventos = processos.flatMap((processo) => {
+    const ev = [];
+    if (processo.prazo) {
+      ev.push({
+        _id: `prazo-${processo._id}`,
+        titulo: `Prazo - ${processo.nomeCliente}`,
+        tipo: 'Prazo',
+        dataInicio: processo.prazo,
+      });
+    }
+    if (processo.audiencia) {
+      ev.push({
+        _id: `aud-${processo._id}`,
+        titulo: `Audiência - ${processo.nomeCliente}`,
+        tipo: 'Audiência',
+        dataInicio: processo.audiencia,
+      });
+    }
+    return ev;
+  });
+
+  const _futureEventos = _todosEventos.filter(
+    (e) => new Date(e.dataInicio) >= new Date(),
+  );
+
+  const proximosPrazos = _futureEventos
+    .filter((e) => e.tipo === 'Prazo')
+    .sort((a, b) => new Date(a.dataInicio) - new Date(b.dataInicio))
+    .slice(0, 8);
+
+  const proximasAudiencias = _futureEventos
+    .filter((e) => e.tipo === 'Audiência')
+    .sort((a, b) => new Date(a.dataInicio) - new Date(b.dataInicio))
+    .slice(0, 8);
+
   if (isAuthLoading || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen text-xl text-gray-500">
@@ -258,33 +295,62 @@ const Calendario = () => {
 
               {/* Dias do mês */}
               <div className="grid grid-cols-7 gap-2">
-                {days.map((day, index) => (
-                  <div
-                    key={index}
-                    onClick={() => day && handleSelectDate(day)}
-                    className={`aspect-square p-2 rounded-lg border-2 flex flex-col items-center justify-center cursor-pointer transition-all ${
-                      day
-                        ? selectedDate?.getDate() === day &&
-                          selectedDate?.getMonth() === currentDate.getMonth()
-                          ? 'bg-red-100 border-red-500'
-                          : 'bg-gray-50 border-gray-200 hover:border-red-300'
-                        : 'bg-gray-100 border-gray-100'
-                    }`}
-                  >
-                    {day && (
-                      <>
-                        <span className="font-semibold text-gray-900">
-                          {day}
+                {days.map((day, index) => {
+                  if (!day) {
+                    return (
+                      <div
+                        key={index}
+                        className="aspect-square p-2 rounded-lg border-2 bg-gray-100 border-gray-100"
+                      />
+                    );
+                  }
+
+                  const eventosDay = getEventosDoMes(day);
+                  const eventosCount = eventosDay.length;
+                  const hasAudiencia = eventosDay.some(
+                    (e) => e.tipo === 'Audiência',
+                  );
+                  const hasPrazo = eventosDay.some((e) => e.tipo === 'Prazo');
+                  const isSelected =
+                    selectedDate?.getDate() === day &&
+                    selectedDate?.getMonth() === currentDate.getMonth();
+
+                  // selected date should only show a red border, not a different background
+                  let cellClass =
+                    'bg-gray-50 border-gray-200 hover:border-blue-200';
+                  if (isSelected) {
+                    cellClass = 'bg-gray-50 border-blue-300';
+                  } else if (hasAudiencia) {
+                    cellClass = 'bg-red-200 border-red-500';
+                  } else if (hasPrazo) {
+                    cellClass = 'bg-orange-200 border-orange-500';
+                  }
+
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => handleSelectDate(day)}
+                      className={`aspect-square p-2 rounded-lg border-2 flex flex-col items-center justify-center cursor-pointer transition-all ${cellClass}`}
+                    >
+                      <span
+                        className={`font-semibold text-gray-900 ${
+                          eventosCount ? 'text-lg' : ''
+                        }`}
+                      >
+                        {day}
+                      </span>
+                      {eventosCount > 0 && (
+                        <span
+                          className={`text-xs font-bold ${
+                            hasAudiencia ? 'text-red-600' : 'text-orange-600'
+                          }`}
+                        >
+                          {eventosCount}
                         </span>
-                        {getEventosDoMes(day).length > 0 && (
-                          <span className="text-xs text-red-600 font-bold">
-                            {getEventosDoMes(day).length}
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -327,58 +393,60 @@ const Calendario = () => {
                 )}
               </div>
 
-              {/* Próximos eventos */}
+              {/* Próximos Prazos */}
               <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 max-h-96 overflow-auto">
                 <h4 className="font-bold text-gray-900 mb-3">
-                  Próximos Prazos e Audiências
+                  Próximos Prazos
                 </h4>
-                {(() => {
-                  // Combinar prazos e audiências de processos
-                  const proximosEventos = [];
-
-                  processos.forEach((processo) => {
-                    if (processo.prazo) {
-                      proximosEventos.push({
-                        _id: `prazo-${processo._id}`,
-                        titulo: `Prazo - ${processo.nomeCliente}`,
-                        tipo: 'Prazo',
-                        dataInicio: processo.prazo,
-                      });
-                    }
-
-                    if (processo.audiencia) {
-                      proximosEventos.push({
-                        _id: `aud-${processo._id}`,
-                        titulo: `Audiência - ${processo.nomeCliente}`,
-                        tipo: 'Audiência',
-                        dataInicio: processo.audiencia,
-                      });
-                    }
-                  });
-
-                  return proximosEventos
-                    .filter((e) => new Date(e.dataInicio) >= new Date())
-                    .sort(
-                      (a, b) => new Date(a.dataInicio) - new Date(b.dataInicio),
-                    )
-                    .slice(0, 8)
-                    .map((evento) => (
-                      <div
-                        key={evento._id}
-                        className="p-2 bg-gray-50 rounded mb-2 text-xs border-l-2 border-red-400"
-                      >
-                        <div className="font-semibold text-gray-900">
-                          {evento.titulo}
-                        </div>
-                        <div className="text-gray-600">
-                          {new Date(evento.dataInicio).toLocaleDateString(
-                            'pt-BR',
-                          )}
-                        </div>
-                        <div className="text-gray-500 mt-1">{evento.tipo}</div>
+                {proximosPrazos.length > 0 ? (
+                  proximosPrazos.map((evento) => (
+                    <div
+                      key={evento._id}
+                      className="p-2 bg-gray-50 rounded mb-2 text-xs border-l-2 border-red-400"
+                    >
+                      <div className="font-semibold text-gray-900">
+                        {evento.titulo}
                       </div>
-                    ));
-                })()}
+                      <div className="text-gray-600">
+                        {new Date(evento.dataInicio).toLocaleDateString(
+                          'pt-BR',
+                        )}
+                      </div>
+                      <div className="text-gray-500 mt-1">{evento.tipo}</div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">Nenhum prazo futuro</p>
+                )}
+              </div>
+
+              {/* Próximas Audiências */}
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 max-h-96 overflow-auto">
+                <h4 className="font-bold text-gray-900 mb-3">
+                  Próximas Audiências
+                </h4>
+                {proximasAudiencias.length > 0 ? (
+                  proximasAudiencias.map((evento) => (
+                    <div
+                      key={evento._id}
+                      className="p-2 bg-gray-50 rounded mb-2 text-xs border-l-2 border-red-400"
+                    >
+                      <div className="font-semibold text-gray-900">
+                        {evento.titulo}
+                      </div>
+                      <div className="text-gray-600">
+                        {new Date(evento.dataInicio).toLocaleDateString(
+                          'pt-BR',
+                        )}
+                      </div>
+                      <div className="text-gray-500 mt-1">{evento.tipo}</div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    Nenhuma audiência futura
+                  </p>
+                )}
               </div>
             </div>
           </div>
