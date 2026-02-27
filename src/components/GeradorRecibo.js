@@ -235,7 +235,8 @@ const GeradorRecibo = ({ processo, onClose }) => {
             </div>
             
             ${
-              processo.pagamento?.parcelas && processo.pagamento.parcelas.length > 0
+              processo.pagamento?.parcelas &&
+              processo.pagamento.parcelas.length > 0
                 ? `
               <div class="section">
                 <div class="section-title">Parcelas</div>
@@ -260,7 +261,7 @@ const GeradorRecibo = ({ processo, onClose }) => {
                         </td>
                         <td>${formatDate(parcela.data)}</td>
                       </tr>
-                    `
+                    `,
                       )
                       .join('')}
                   </tbody>
@@ -274,8 +275,8 @@ const GeradorRecibo = ({ processo, onClose }) => {
               <div class="section-title">Descrição</div>
               <p style="color: #666; font-size: 13px; line-height: 1.6;">
                 Recebemos nesta data, de ${processo.nomeCliente || 'N/A'}, a quantia de ${formatCurrency(
-      processo.pagamento?.totalPago,
-    )} 
+                  processo.pagamento?.totalPago,
+                )} 
                 referente aos honorários advocatícios do processo ${processo.numProcesso || 'N/A'}.
               </p>
             </div>
@@ -311,13 +312,18 @@ const GeradorRecibo = ({ processo, onClose }) => {
       <div className="p-6 space-y-4">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-2xl font-bold text-gray-900">Gerar Recibo</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-2xl"
+          >
             ×
           </button>
         </div>
 
         <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-gray-900">Processo: {processo.nomeCliente}</h4>
+          <h4 className="font-semibold text-gray-900">
+            Processo: {processo.nomeCliente}
+          </h4>
           <p className="text-sm text-gray-600">{processo.numProcesso}</p>
 
           <div className="bg-white p-4 rounded-lg space-y-2">
@@ -341,24 +347,34 @@ const GeradorRecibo = ({ processo, onClose }) => {
             </div>
           </div>
 
-          {processo.pagamento?.parcelas && processo.pagamento.parcelas.length > 0 && (
-            <div className="bg-white p-4 rounded-lg">
-              <h5 className="font-semibold text-gray-900 mb-2">Parcelas:</h5>
-              <div className="space-y-2 max-h-48 overflow-auto">
-                {processo.pagamento.parcelas.map((parcela, index) => (
-                  <div key={index} className="flex justify-between text-sm border-b pb-2">
-                    <span className="text-gray-600">Parcela {parcela.numero}</span>
-                    <span className="text-gray-900 font-semibold">
-                      {formatCurrency(parcela.valor)}
-                    </span>
-                    <span className={parcela.pago ? 'text-green-600' : 'text-red-600'}>
-                      {parcela.pago ? 'Pago' : 'Pendente'}
-                    </span>
-                  </div>
-                ))}
+          {processo.pagamento?.parcelas &&
+            processo.pagamento.parcelas.length > 0 && (
+              <div className="bg-white p-4 rounded-lg">
+                <h5 className="font-semibold text-gray-900 mb-2">Parcelas:</h5>
+                <div className="space-y-2 max-h-48 overflow-auto">
+                  {processo.pagamento.parcelas.map((parcela, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between text-sm border-b pb-2"
+                    >
+                      <span className="text-gray-600">
+                        Parcela {parcela.numero}
+                      </span>
+                      <span className="text-gray-900 font-semibold">
+                        {formatCurrency(parcela.valor)}
+                      </span>
+                      <span
+                        className={
+                          parcela.pago ? 'text-green-600' : 'text-red-600'
+                        }
+                      >
+                        {parcela.pago ? 'Pago' : 'Pendente'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         <div className="flex gap-2 mt-6 pt-4 border-t border-gray-200">
