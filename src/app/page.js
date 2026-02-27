@@ -13,7 +13,10 @@ import KanbanColumn from '../components/KanbanColumn';
 import ProcessoDetalhe from '../components/ProcessoDetalhe';
 import ProcessoForm from '../components/ProcessoForm';
 import ProcessosTable from '../components/ProcessosTable'; // NOVO: Importação do componente de Tabela
-import { compareProcessosByPriority } from '../utils/priority-utils'; // NOVO: Importação do utilitário de ordenação
+import {
+  compareProcessosByPriority,
+  compareProcessosForTable,
+} from '../utils/priority-utils'; // utilitários de ordenação
 
 // --- CONFIGURAÇÃO DA API ---
 const API_BASE_URL = 'https://api-sistema-jur.onrender.com/api';
@@ -207,8 +210,8 @@ const Processos = () => {
       (p) => p.statusPrioridade !== 'Arquivado',
     );
 
-    // Sort by priority (highest priority first) using the utility function
-    return activeFiltered.sort(compareProcessosByPriority);
+    // Sort based on prazo/audiência e, em seguida, prioridade
+    return activeFiltered.sort(compareProcessosForTable);
   };
 
   const filteredProcessosTable = getTableProcesses();
@@ -465,12 +468,12 @@ const Processos = () => {
             >
               Tabela (Prioridade)
             </button>
-            <button
+            {/* <button
               onClick={() => setViewMode('kanban')}
               className={tabClass('kanban')}
             >
               Quadro (Kanban)
-            </button>
+            </button> */}
           </div>
 
           {/* Filtros */}

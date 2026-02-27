@@ -26,6 +26,10 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
         return `${base} bg-orange-100 text-orange-800 border border-orange-300`;
       case 'blue':
         return `${base} bg-blue-100 text-blue-800 border border-blue-300`;
+      case 'purple':
+        return `${base} bg-purple-100 text-purple-800 border border-purple-300`;
+      case 'amber':
+        return `${base} bg-amber-100 text-amber-800 border border-amber-300`;
       case 'green':
         return `${base} bg-green-100 text-green-800 border border-green-300`;
       default:
