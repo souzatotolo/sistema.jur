@@ -468,9 +468,11 @@ const Processos = () => {
         }}
       />
 
-      <div className={`flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300 pt-12 md:pt-0 ml-0 ${
-        sidebarMinimized ? 'md:ml-14' : 'md:ml-48'
-      }`}>
+      <div
+        className={`flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300 pt-12 md:pt-0 ml-0 ${
+          sidebarMinimized ? 'md:ml-14' : 'md:ml-48'
+        }`}
+      >
         {/* Topbar */}
         <div className="bg-white border-b border-[#AA8F71]/20 px-6 py-4 flex-shrink-0">
           <div className="flex justify-between items-center">

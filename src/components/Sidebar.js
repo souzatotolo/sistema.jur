@@ -53,7 +53,11 @@ const ChevronLeftIcon = (props) => (
     stroke="currentColor"
     className="w-5 h-5"
   >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M15.75 19.5 8.25 12l7.5-7.5"
+    />
   </svg>
 );
 
@@ -67,19 +71,45 @@ const ChevronRightIcon = (props) => (
     stroke="currentColor"
     className="w-5 h-5"
   >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5 15.75 12l-7.5 7.5" />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M8.25 4.5 15.75 12l-7.5 7.5"
+    />
   </svg>
 );
 
 const HamburgerIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={1.5}
+    stroke="currentColor"
+    className="w-5 h-5"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+    />
   </svg>
 );
 
 const XIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth={1.5}
+    stroke="currentColor"
+    className="w-5 h-5"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M6 18 18 6M6 6l12 12"
+    />
   </svg>
 );
 
@@ -133,7 +163,9 @@ const Sidebar = ({ current, onLogout, isMinimized, onToggleMinimized }) => {
             <Image
               src={isMinimized ? martaLogo : logo}
               alt="Marta Neumann Advogada"
-              className={isMinimized ? 'opacity-90' : 'brightness-0 invert opacity-90'}
+              className={
+                isMinimized ? 'opacity-90' : 'brightness-0 invert opacity-90'
+              }
               style={{
                 maxWidth: isMinimized ? '40px' : '140px',
                 height: 'auto',

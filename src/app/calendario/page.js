@@ -260,9 +260,11 @@ const Calendario = () => {
         }}
       />
 
-      <div className={`flex-1 flex flex-col h-screen transition-all max-w-full overflow-hidden pt-12 md:pt-0 ml-0 ${
-        sidebarMinimized ? 'md:ml-14' : 'md:ml-48'
-      }`}>
+      <div
+        className={`flex-1 flex flex-col h-screen transition-all max-w-full overflow-hidden pt-12 md:pt-0 ml-0 ${
+          sidebarMinimized ? 'md:ml-14' : 'md:ml-48'
+        }`}
+      >
         <div className="p-6">
           <header className="mb-4">
             <h2 className="text-3xl font-bold text-gray-900">
