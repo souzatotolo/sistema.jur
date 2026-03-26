@@ -72,6 +72,12 @@ const Processos = () => {
 
   // --- NOVO ESTADO DE VISUALIZAÇÃO ---
   const [viewMode, setViewMode] = useState('table'); // 'kanban' ou 'table'
+  const [sidebarMinimized, setSidebarMinimized] = useState(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebarMinimized');
+    if (saved !== null) setSidebarMinimized(saved === 'true');
+  }, []);
 
   // --- ESTADOS DE FILTRO ---
   const [searchTerm, setSearchTerm] = useState('');
@@ -164,7 +170,9 @@ const Processos = () => {
         ? processo.statusPrioridade === filterPrioridade
         : true;
       const matchParceria = filterParceria
-        ? processo.parceria?.toLowerCase().includes(filterParceria.toLowerCase())
+        ? processo.parceria
+            ?.toLowerCase()
+            .includes(filterParceria.toLowerCase())
         : true;
 
       return matchSearch && matchTipo && matchPrioridade && matchParceria;
@@ -203,7 +211,9 @@ const Processos = () => {
         ? processo.statusPrioridade === filterPrioridade
         : true;
       const matchParceria = filterParceria
-        ? processo.parceria?.toLowerCase().includes(filterParceria.toLowerCase())
+        ? processo.parceria
+            ?.toLowerCase()
+            .includes(filterParceria.toLowerCase())
         : true;
 
       return matchSearch && matchTipo && matchPrioridade && matchParceria;
@@ -447,9 +457,20 @@ const Processos = () => {
 
   return (
     <div className="flex min-h-screen w-screen overflow-x-hidden relative bg-[#EDE8E5]">
-      <Sidebar current="Processos" onLogout={logout} />
+      <Sidebar
+        current="Processos"
+        onLogout={logout}
+        isMinimized={sidebarMinimized}
+        onToggleMinimized={() => {
+          const next = !sidebarMinimized;
+          setSidebarMinimized(next);
+          localStorage.setItem('sidebarMinimized', String(next));
+        }}
+      />
 
-      <div className="flex-1 flex flex-col h-screen overflow-hidden ml-64">
+      <div className={`flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300 pt-12 md:pt-0 ml-0 ${
+        sidebarMinimized ? 'md:ml-14' : 'md:ml-48'
+      }`}>
         {/* Topbar */}
         <div className="bg-white border-b border-[#AA8F71]/20 px-6 py-4 flex-shrink-0">
           <div className="flex justify-between items-center">
@@ -515,7 +536,10 @@ const Processos = () => {
               onChange={(e) => setFilterParceria(e.target.value)}
               className="px-3 py-2 border border-[#AA8F71]/30 rounded-lg text-sm text-[#161616] bg-[#EDE8E5]/50 focus:outline-none focus:border-[#610013] focus:ring-1 focus:ring-[#610013] transition-colors min-w-[140px]"
             />
-            {(searchTerm || filterTipo || filterPrioridade || filterParceria) && (
+            {(searchTerm ||
+              filterTipo ||
+              filterPrioridade ||
+              filterParceria) && (
               <button
                 onClick={() => {
                   setSearchTerm('');

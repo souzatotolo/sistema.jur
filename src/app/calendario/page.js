@@ -20,6 +20,12 @@ const Calendario = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
+  const [sidebarMinimized, setSidebarMinimized] = useState(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebarMinimized');
+    if (saved !== null) setSidebarMinimized(saved === 'true');
+  }, []);
 
   // --- PROTEÇÃO DE ROTA ---
   useEffect(() => {
@@ -243,9 +249,20 @@ const Calendario = () => {
 
   return (
     <div className="flex min-h-screen w-screen overflow-x-hidden relative">
-      <Sidebar current="Calendário" onLogout={logout} />
+      <Sidebar
+        current="Calendário"
+        onLogout={logout}
+        isMinimized={sidebarMinimized}
+        onToggleMinimized={() => {
+          const next = !sidebarMinimized;
+          setSidebarMinimized(next);
+          localStorage.setItem('sidebarMinimized', String(next));
+        }}
+      />
 
-      <div className="flex-1 flex flex-col h-screen transition-all max-w-full overflow-hidden ml-64">
+      <div className={`flex-1 flex flex-col h-screen transition-all max-w-full overflow-hidden pt-12 md:pt-0 ml-0 ${
+        sidebarMinimized ? 'md:ml-14' : 'md:ml-48'
+      }`}>
         <div className="p-6">
           <header className="mb-4">
             <h2 className="text-3xl font-bold text-gray-900">
