@@ -5,7 +5,7 @@ import martaLogo from '../assets/marta_neumann_logo_iniciais_600x600.jpg';
 import BrandStarPng from '../assets/brandStar.png';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MdOutlineDocumentScanner, MdArchive } from 'react-icons/md';
+import { MdOutlineDocumentScanner, MdArchive, MdAttachMoney } from 'react-icons/md';
 
 const CalendarIcon = (props) => (
   <svg
@@ -201,10 +201,18 @@ const Sidebar = ({ current, onLogout, isMinimized, onToggleMinimized }) => {
               onMobileClose={() => setMobileOpen(false)}
             />
             <NavItem
-              icon={<MdArchive className="w-5 h-5" />}
+              icon={<MdAttachMoney className="w-5 h-5" />}
               label="Financeiro"
               href="/arquivo-financeiro"
               isActive={current === 'Financeiro'}
+              isMinimized={isMinimized}
+              onMobileClose={() => setMobileOpen(false)}
+            />
+            <NavItem
+              icon={<MdArchive className="w-5 h-5" />}
+              label="Arquivo"
+              href="/arquivo"
+              isActive={current === 'Arquivo'}
               isMinimized={isMinimized}
               onMobileClose={() => setMobileOpen(false)}
             />
