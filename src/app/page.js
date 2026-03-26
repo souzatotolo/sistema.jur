@@ -77,6 +77,7 @@ const Processos = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterTipo, setFilterTipo] = useState('');
   const [filterPrioridade, setFilterPrioridade] = useState('');
+  const [filterParceria, setFilterParceria] = useState('');
 
   // --- PROTEÇÃO DE ROTA ---
   useEffect(() => {
@@ -162,8 +163,11 @@ const Processos = () => {
       const matchPrioridade = filterPrioridade
         ? processo.statusPrioridade === filterPrioridade
         : true;
+      const matchParceria = filterParceria
+        ? processo.parceria?.toLowerCase().includes(filterParceria.toLowerCase())
+        : true;
 
-      return matchSearch && matchTipo && matchPrioridade;
+      return matchSearch && matchTipo && matchPrioridade && matchParceria;
     });
 
     const groupedFiltered = {};
@@ -198,8 +202,11 @@ const Processos = () => {
       const matchPrioridade = filterPrioridade
         ? processo.statusPrioridade === filterPrioridade
         : true;
+      const matchParceria = filterParceria
+        ? processo.parceria?.toLowerCase().includes(filterParceria.toLowerCase())
+        : true;
 
-      return matchSearch && matchTipo && matchPrioridade;
+      return matchSearch && matchTipo && matchPrioridade && matchParceria;
     });
 
     // Filter to only active processes (not finalized or archived)
@@ -501,12 +508,20 @@ const Processos = () => {
                 </option>
               ))}
             </select>
-            {(searchTerm || filterTipo || filterPrioridade) && (
+            <input
+              type="text"
+              placeholder="Filtrar por parceria..."
+              value={filterParceria}
+              onChange={(e) => setFilterParceria(e.target.value)}
+              className="px-3 py-2 border border-[#AA8F71]/30 rounded-lg text-sm text-[#161616] bg-[#EDE8E5]/50 focus:outline-none focus:border-[#610013] focus:ring-1 focus:ring-[#610013] transition-colors min-w-[140px]"
+            />
+            {(searchTerm || filterTipo || filterPrioridade || filterParceria) && (
               <button
                 onClick={() => {
                   setSearchTerm('');
                   setFilterTipo('');
                   setFilterPrioridade('');
+                  setFilterParceria('');
                 }}
                 className="px-3 py-2 text-sm text-[#AA8F71] hover:text-[#610013] border border-[#AA8F71]/30 rounded-lg bg-white transition-colors"
               >

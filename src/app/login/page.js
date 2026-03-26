@@ -79,7 +79,7 @@ const LoginForm = () => {
         <div
           className="absolute left-0 top-0 bottom-0 pointer-events-none"
           style={{
-            width: '180px',
+            width: '120px',
             backgroundImage: `url(${BrandStarPng.src})`,
             backgroundSize: '600px 600px',
             backgroundRepeat: 'repeat-y',

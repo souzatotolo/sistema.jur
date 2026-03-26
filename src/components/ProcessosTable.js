@@ -67,7 +67,7 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
       <table className="min-w-full divide-y divide-[#EDE8E5]">
         <thead>
           <tr className="bg-[#610013]">
-            {['Cliente', 'Prioridade', 'Prazo', 'Último Contato', 'Audiência', 'Indicação', 'Próximo Passo', 'Processo Nº', ''].map((col) => (
+            {['Cliente', 'Prioridade', 'Prazo', 'Último Contato', 'Audiência', 'Parceria', 'Próximo Passo', 'Processo Nº', ''].map((col) => (
               <th
                 key={col}
                 className="px-5 py-3.5 text-left text-xs font-semibold text-[#F0D9CC]/80 uppercase tracking-wider"
@@ -111,7 +111,7 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
                   {formatDate(processo.audiencia)}
                 </td>
                 <td className="px-5 py-3.5 text-sm text-[#161616]/60 max-w-[140px] truncate">
-                  {processo.indicacao || '-'}
+                  {processo.parceria || '-'}
                 </td>
                 <td className="px-5 py-3.5 text-sm text-[#161616]/70 max-w-[180px] truncate">
                   {processo.proximoPasso || '-'}
