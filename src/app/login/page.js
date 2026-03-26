@@ -105,20 +105,6 @@ const LoginForm = () => {
 
       {/* ── Painel direito — formulário ── */}
       <div className="flex-1 flex flex-col justify-center items-center bg-[#F0D9CC] p-8 relative overflow-hidden">
-        {/* Decoração de canto — brandStar em baixo à direita */}
-        <div
-          className="absolute bottom-0 right-0 pointer-events-none"
-          style={{
-            width: '180px',
-            height: '90px',
-            backgroundImage: `url(${BrandStarPng.src})`,
-            backgroundSize: '120px 120px',
-            backgroundRepeat: 'repeat',
-            backgroundPosition: 'bottom right',
-            opacity: 0.18,
-          }}
-        />
-
         {/* Logo mobile */}
         <div className="lg:hidden mb-10">
           <Image
@@ -202,19 +188,6 @@ const LoginForm = () => {
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
-
-          {/* Faixa decorativa inferior — brandStar */}
-          <div
-            className="mt-10"
-            style={{
-              height: '32px',
-              backgroundImage: `url(${BrandStarPng.src})`,
-              backgroundSize: '120px 120px',
-              backgroundRepeat: 'repeat-x',
-              backgroundPosition: 'center',
-              opacity: 0.22,
-            }}
-          />
         </div>
       </div>
     </div>
