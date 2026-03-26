@@ -55,7 +55,7 @@ const getDeadlinePillClass = (isoString) => {
 
 const getPriorityBadgeClasses = (status) => {
   const color = getPriorityColor(status);
-  const base = 'px-2.5 py-0.5 rounded-full text-xs font-semibold border';
+  const base = 'px-2.5 py-0.5 rounded-full text-xs font-semibold border whitespace-nowrap';
   switch (color) {
     case 'red':
       return `${base} bg-red-50 text-red-800 border-red-200`;
@@ -114,7 +114,7 @@ const ProcessosTable = ({ processos, onProcessoClick }) => {
                 className={`cursor-pointer transition-colors duration-100 hover:bg-[#F0D9CC]/40 ${i % 2 === 0 ? 'bg-white' : 'bg-[#EDE8E5]/30'}`}
                 onClick={() => onProcessoClick(processo)}
               >
-                <td className="px-5 py-3.5 text-sm font-semibold text-[#161616]">
+                <td className="px-5 py-3.5 text-sm font-semibold text-[#161616] whitespace-nowrap">
                   {processo.nomeCliente || 'N/A'}
                 </td>
                 <td className="px-5 py-3.5">
