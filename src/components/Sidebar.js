@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import logo from '../assets/logo.png';
+import BrandStarPng from '../assets/brandStar.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import { MdOutlineDocumentScanner, MdArchive } from 'react-icons/md';
@@ -45,7 +46,7 @@ const Sidebar = ({ current, onLogout }) => (
   <div className="w-64 h-screen fixed bg-[#610013] text-white p-5 flex flex-col justify-between">
     <div>
       {/* Logo */}
-      <div className="mb-8 pb-6 border-b border-[#D69957]/30 flex items-center justify-center">
+      <div className="mb-8 flex flex-col items-center gap-3">
         <Image
           src={logo}
           alt="Marta Neumann Advogada"
@@ -78,7 +79,20 @@ const Sidebar = ({ current, onLogout }) => (
     </div>
 
     {/* Rodapé */}
-    <div className="border-t border-[#D69957]/30 pt-4 space-y-3">
+    <div className="space-y-3">
+      {/* Faixa brandStar acima do botão de sair */}
+      <div
+        className="w-full"
+        style={{
+          height: '55px',
+          backgroundImage: `url(${BrandStarPng.src})`,
+          backgroundSize: '500px 500px',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'left',
+          mixBlendMode: 'screen',
+          opacity: 0.35,
+        }}
+      />
       <NavItem
         icon={<LogoutIcon />}
         label="Sair"
@@ -92,14 +106,22 @@ const Sidebar = ({ current, onLogout }) => (
   </div>
 );
 
-const NavItem = ({ icon, label, href, isActive, onClick, isLogout = false }) => {
-  const base = 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200';
+const NavItem = ({
+  icon,
+  label,
+  href,
+  isActive,
+  onClick,
+  isLogout = false,
+}) => {
+  const base =
+    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200';
 
   const classes = isActive
     ? `${base} bg-[#D69957] text-[#161616]`
     : isLogout
-    ? `${base} text-[#F0D9CC]/60 hover:bg-white/10 hover:text-white`
-    : `${base} text-[#F0D9CC]/80 hover:bg-white/10 hover:text-white`;
+      ? `${base} text-[#F0D9CC]/60 hover:bg-white/10 hover:text-white`
+      : `${base} text-[#F0D9CC]/80 hover:bg-white/10 hover:text-white`;
 
   if (href) {
     return (
