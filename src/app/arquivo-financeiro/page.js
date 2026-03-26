@@ -48,7 +48,7 @@ const ArquivoFinanceiro = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProcesso, setSelectedProcesso] = useState(null);
   const [isEditingPagamento, setIsEditingPagamento] = useState(false);
-  const [sidebarMinimized, setSidebarMinimized] = useState(true);
+  const [sidebarMinimized, setSidebarMinimized] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('sidebarMinimized');

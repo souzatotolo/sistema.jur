@@ -5,7 +5,12 @@ import martaLogo from '../assets/marta_neumann_logo_iniciais_600x600.jpg';
 import BrandStarPng from '../assets/brandStar.png';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MdOutlineDocumentScanner, MdArchive, MdAttachMoney } from 'react-icons/md';
+import {
+  MdOutlineDocumentScanner,
+  MdArchive,
+  MdAttachMoney,
+  MdOutlineNewspaper,
+} from 'react-icons/md';
 
 const CalendarIcon = (props) => (
   <svg
@@ -173,8 +178,8 @@ const Sidebar = ({ current, onLogout, isMinimized, onToggleMinimized }) => {
               }}
             />
             {!isMinimized && (
-              <p className="text-xs text-[#F0D9CC]/50 text-center tracking-wider uppercase">
-                Sistema Jurídico v1.0
+              <p className="font-sans text-xs text-[#F0D9CC]/50 text-center tracking-wider ">
+                Cuidando de cada detalhe
               </p>
             )}
           </div>
@@ -214,6 +219,16 @@ const Sidebar = ({ current, onLogout, isMinimized, onToggleMinimized }) => {
               href="/arquivo"
               isActive={current === 'Arquivo'}
               isMinimized={isMinimized}
+              isNew
+              onMobileClose={() => setMobileOpen(false)}
+            />
+            <NavItem
+              icon={<MdOutlineNewspaper className="w-5 h-5" />}
+              label="Publicações"
+              href="/publicacoes"
+              isActive={current === 'Publicações'}
+              isMinimized={isMinimized}
+              isNew
               onMobileClose={() => setMobileOpen(false)}
             />
             <NavItem
@@ -250,11 +265,9 @@ const Sidebar = ({ current, onLogout, isMinimized, onToggleMinimized }) => {
             isLogout={true}
             isMinimized={isMinimized}
           />
-          {isMinimized && (
-            <p className="text-xs text-[#F0D9CC]/50 text-center tracking-wider uppercase">
-              v1.0
-            </p>
-          )}
+          <p className="text-xs text-[#F0D9CC]/30 text-center tracking-wider uppercase">
+            {isMinimized ? 'v1.2' : 'v1.2'}
+          </p>
         </div>
       </div>
     </>
@@ -269,6 +282,7 @@ const NavItem = ({
   onClick,
   isLogout = false,
   isMinimized = false,
+  isNew = false,
   onMobileClose,
 }) => {
   const base =
@@ -288,7 +302,16 @@ const NavItem = ({
         onClick={onMobileClose}
       >
         <span className="flex-shrink-0">{icon}</span>
-        <span className={isMinimized ? 'md:hidden' : ''}>{label}</span>
+        <span
+          className={`${isMinimized ? 'md:hidden' : ''} flex items-center gap-1.5`}
+        >
+          {label}
+          {isNew && !isMinimized && (
+            <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[#D69957] text-[#161616] leading-none tracking-wide">
+              NEW
+            </span>
+          )}
+        </span>
       </Link>
     );
   }

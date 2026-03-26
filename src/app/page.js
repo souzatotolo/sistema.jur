@@ -72,7 +72,8 @@ const Processos = () => {
 
   // --- NOVO ESTADO DE VISUALIZAÇÃO ---
   const [viewMode, setViewMode] = useState('table'); // 'kanban' ou 'table'
-  const [sidebarMinimized, setSidebarMinimized] = useState(true);
+  const [sidebarMinimized, setSidebarMinimized] = useState(false);
+  const [dashCardOpen, setDashCardOpen] = useState(null); // 'vencidos' | 'urgentes' | null
 
   useEffect(() => {
     const saved = localStorage.getItem('sidebarMinimized');
@@ -229,6 +230,60 @@ const Processos = () => {
   };
 
   const filteredProcessosTable = getTableProcesses();
+
+  // --- DASHBOARD: INDICADORES ---
+  const getDashboardStats = () => {
+    let allProcesses = [];
+    Object.values(processos).forEach((fase) => {
+      allProcesses = allProcesses.concat(fase || []);
+    });
+
+    const ativos = allProcesses.filter(
+      (p) => p.statusPrioridade !== 'Arquivado' && p.statusPrioridade !== 'Finalizado',
+    );
+
+    // Comparação por string local (YYYY-MM-DD) para evitar problemas de timezone UTC vs Brasil
+    const toLocalDateStr = (date) =>
+      date.toLocaleDateString('sv-SE'); // retorna "YYYY-MM-DD" no fuso local
+
+    const hojeStr = toLocalDateStr(new Date());
+    const em7diasStr = toLocalDateStr(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+
+    const prazosUrg = ativos.filter((p) => {
+      if (!p.prazo) return false;
+      const d = toLocalDateStr(new Date(p.prazo));
+      return d >= hojeStr && d <= em7diasStr;
+    });
+
+    const audienciasUrg = ativos.filter((p) => {
+      if (!p.audiencia) return false;
+      const d = toLocalDateStr(new Date(p.audiencia));
+      return d >= hojeStr && d <= em7diasStr;
+    });
+
+    // Vencido = prazo estritamente ANTES de hoje (hoje não conta)
+    const prazosVencidos = ativos.filter((p) => {
+      if (!p.prazo) return false;
+      const d = toLocalDateStr(new Date(p.prazo));
+      return d < hojeStr;
+    });
+
+    const semProximoPasso = ativos.filter(
+      (p) => !p.proximoPasso || p.proximoPasso.trim() === '',
+    );
+
+    return {
+      ativos: ativos.length,
+      prazosUrg: prazosUrg.length,
+      prazosUrgList: prazosUrg,
+      audienciasUrg: audienciasUrg.length,
+      prazosVencidos: prazosVencidos.length,
+      prazosVencidosList: prazosVencidos,
+      semProximoPasso: semProximoPasso.length,
+    };
+  };
+
+  const stats = getDashboardStats();
 
   // --- FUNÇÕES CRUD ---
   const handleEditStart = () => {
@@ -494,8 +549,91 @@ const Processos = () => {
             </button>
           </div>
 
-          {/* Tabs */}
         </div>
+
+        {/* Dashboard de indicadores */}
+        {!isLoading && (
+          <div className="px-6 pt-4 pb-2 bg-white border-b border-[#AA8F71]/20 flex-shrink-0">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="bg-[#EDE8E5]/60 rounded-lg px-4 py-3 border border-[#AA8F71]/20">
+                <p className="text-xs text-[#AA8F71] uppercase tracking-wider">Ativos</p>
+                <p className="text-2xl font-bold text-[#610013] mt-0.5">{stats.ativos}</p>
+              </div>
+              {/* Card Prazos Vencidos */}
+              <div className="relative">
+                <button
+                  onClick={() => setDashCardOpen(dashCardOpen === 'vencidos' ? null : 'vencidos')}
+                  className={`w-full text-left rounded-lg px-4 py-3 border transition-all ${stats.prazosVencidos > 0 ? 'bg-red-50 border-red-200 hover:bg-red-100' : 'bg-[#EDE8E5]/60 border-[#AA8F71]/20 hover:bg-[#EDE8E5]'} ${dashCardOpen === 'vencidos' ? 'ring-2 ring-red-300' : ''}`}
+                >
+                  <p className="text-xs text-[#AA8F71] uppercase tracking-wider">Prazos Vencidos</p>
+                  <p className={`text-2xl font-bold mt-0.5 ${stats.prazosVencidos > 0 ? 'text-red-700' : 'text-[#610013]'}`}>{stats.prazosVencidos}</p>
+                </button>
+                {dashCardOpen === 'vencidos' && stats.prazosVencidosList.length > 0 && (
+                  <div className="absolute top-full left-0 mt-1 z-30 w-72 bg-white rounded-xl border border-red-200 shadow-lg overflow-hidden">
+                    <p className="px-3 py-2 text-xs font-bold text-red-700 uppercase tracking-wider bg-red-50 border-b border-red-100">Prazos vencidos</p>
+                    <ul className="max-h-60 overflow-y-auto divide-y divide-[#EDE8E5]">
+                      {stats.prazosVencidosList.map((p) => (
+                        <li key={p._id}>
+                          <button
+                            className="w-full text-left px-3 py-2.5 hover:bg-[#F0D9CC]/30 transition-colors"
+                            onClick={() => { handleSelectProcesso(p); setDashCardOpen(null); }}
+                          >
+                            <p className="text-sm font-semibold text-[#161616] truncate">{p.nomeCliente}</p>
+                            <p className="text-xs text-red-600 mt-0.5">
+                              Venceu em {new Date(p.prazo).toLocaleDateString('pt-BR')}
+                            </p>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Card Prazos em 7 dias */}
+              <div className="relative">
+                <button
+                  onClick={() => setDashCardOpen(dashCardOpen === 'urgentes' ? null : 'urgentes')}
+                  className={`w-full text-left rounded-lg px-4 py-3 border transition-all ${stats.prazosUrg > 0 ? 'bg-orange-50 border-orange-200 hover:bg-orange-100' : 'bg-[#EDE8E5]/60 border-[#AA8F71]/20 hover:bg-[#EDE8E5]'} ${dashCardOpen === 'urgentes' ? 'ring-2 ring-orange-300' : ''}`}
+                >
+                  <p className="text-xs text-[#AA8F71] uppercase tracking-wider">Prazos em 7 dias</p>
+                  <p className={`text-2xl font-bold mt-0.5 ${stats.prazosUrg > 0 ? 'text-orange-700' : 'text-[#610013]'}`}>{stats.prazosUrg}</p>
+                </button>
+                {dashCardOpen === 'urgentes' && stats.prazosUrgList.length > 0 && (
+                  <div className="absolute top-full left-0 mt-1 z-30 w-72 bg-white rounded-xl border border-orange-200 shadow-lg overflow-hidden">
+                    <p className="px-3 py-2 text-xs font-bold text-orange-700 uppercase tracking-wider bg-orange-50 border-b border-orange-100">Próximos 7 dias</p>
+                    <ul className="max-h-60 overflow-y-auto divide-y divide-[#EDE8E5]">
+                      {stats.prazosUrgList
+                        .slice()
+                        .sort((a, b) => new Date(a.prazo) - new Date(b.prazo))
+                        .map((p) => (
+                          <li key={p._id}>
+                            <button
+                              className="w-full text-left px-3 py-2.5 hover:bg-[#F0D9CC]/30 transition-colors"
+                              onClick={() => { handleSelectProcesso(p); setDashCardOpen(null); }}
+                            >
+                              <p className="text-sm font-semibold text-[#161616] truncate">{p.nomeCliente}</p>
+                              <p className="text-xs text-orange-600 mt-0.5">
+                                Prazo: {new Date(p.prazo).toLocaleDateString('pt-BR')}
+                              </p>
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <div className={`rounded-lg px-4 py-3 border ${stats.audienciasUrg > 0 ? 'bg-amber-50 border-amber-200' : 'bg-[#EDE8E5]/60 border-[#AA8F71]/20'}`}>
+                <p className="text-xs text-[#AA8F71] uppercase tracking-wider">Audiências em 7 dias</p>
+                <p className={`text-2xl font-bold mt-0.5 ${stats.audienciasUrg > 0 ? 'text-amber-700' : 'text-[#610013]'}`}>{stats.audienciasUrg}</p>
+              </div>
+              <div className={`rounded-lg px-4 py-3 border ${stats.semProximoPasso > 0 ? 'bg-[#F0D9CC]/60 border-[#D69957]/30' : 'bg-[#EDE8E5]/60 border-[#AA8F71]/20'}`}>
+                <p className="text-xs text-[#AA8F71] uppercase tracking-wider">Sem próximo passo</p>
+                <p className={`text-2xl font-bold mt-0.5 ${stats.semProximoPasso > 0 ? 'text-[#D69957]' : 'text-[#610013]'}`}>{stats.semProximoPasso}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filtros */}
         <div className="px-6 py-3 bg-white border-b border-[#AA8F71]/20 flex-shrink-0">

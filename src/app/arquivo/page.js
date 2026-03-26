@@ -19,7 +19,7 @@ const Arquivo = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProcesso, setSelectedProcesso] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [sidebarMinimized, setSidebarMinimized] = useState(true);
+  const [sidebarMinimized, setSidebarMinimized] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {

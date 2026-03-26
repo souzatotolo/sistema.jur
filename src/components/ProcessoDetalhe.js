@@ -1,6 +1,8 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 
+const API_BASE_URL = 'https://api-sistema-jur.onrender.com/api';
+
 const ProcessoDetalhe = ({
   processo,
   onClose,
@@ -10,7 +12,15 @@ const ProcessoDetalhe = ({
 }) => {
   const [isAddingUpdate, setIsAddingUpdate] = useState(false);
   const [newUpdateText, setNewUpdateText] = useState('');
+  const [datajud, setDatajud] = useState(null);
+  const [datajudLoading, setDatajudLoading] = useState(false);
+  const [datajudError, setDatajudError] = useState('');
   const panelRef = useRef(null);
+
+  useEffect(() => {
+    setDatajud(null);
+    setDatajudError('');
+  }, [processo._id]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -39,6 +49,21 @@ const ProcessoDetalhe = ({
     return new Date(date).toLocaleDateString('pt-BR');
   };
 
+  const formatDatetime = (isoString) => {
+    if (!isoString) return '';
+    try {
+      return new Date(isoString).toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return isoString;
+    }
+  };
+
   const handleUpdateSubmit = (e) => {
     e.preventDefault();
     if (newUpdateText.trim()) {
@@ -46,6 +71,34 @@ const ProcessoDetalhe = ({
       setNewUpdateText('');
       setIsAddingUpdate(false);
     }
+  };
+
+  const handleConsultarDatajud = async () => {
+    if (!processo.numProcesso) return;
+    setDatajudLoading(true);
+    setDatajudError('');
+    setDatajud(null);
+    try {
+      const token = localStorage.getItem('authToken');
+      const num = encodeURIComponent(processo.numProcesso.trim());
+      const response = await fetch(`${API_BASE_URL}/datajud/${num}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setDatajudError(data.message || 'Erro ao consultar DataJud.');
+      } else {
+        setDatajud(data);
+      }
+    } catch {
+      setDatajudError('Falha de conexão ao consultar DataJud.');
+    } finally {
+      setDatajudLoading(false);
+    }
+  };
+
+  const handleAdicionarMovimento = (descricao) => {
+    onAddUpdate(descricao);
   };
 
   return (
@@ -116,6 +169,86 @@ const ProcessoDetalhe = ({
             </p>
           )}
         </Section>
+
+        {/* Seção DataJud */}
+        <div>
+          <div className="flex items-center justify-between pb-1.5 border-b border-[#EDE8E5] mb-2.5">
+            <h3 className="text-sm font-bold text-[#610013] uppercase tracking-wider">
+              Andamento Processual
+            </h3>
+            {processo.numProcesso && (
+              <button
+                onClick={handleConsultarDatajud}
+                disabled={datajudLoading}
+                className="text-xs font-semibold px-3 py-1 rounded-full bg-[#610013]/10 text-[#610013] hover:bg-[#610013]/20 transition-colors disabled:opacity-50"
+              >
+                {datajudLoading ? 'Consultando...' : 'Consultar DataJud'}
+              </button>
+            )}
+          </div>
+
+          {!processo.numProcesso && (
+            <p className="text-xs text-[#AA8F71]">
+              Cadastre o número do processo para consultar o andamento no DataJud.
+            </p>
+          )}
+
+          {datajudError && (
+            <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2.5">
+              {datajudError}
+            </p>
+          )}
+
+          {datajud && !datajudLoading && (
+            <div className="space-y-2.5">
+              <div className="text-xs bg-[#EDE8E5]/60 rounded-lg p-3 space-y-1">
+                {datajud.classe && (
+                  <p><span className="text-[#AA8F71]">Classe:</span> <span className="text-[#161616]">{datajud.classe}</span></p>
+                )}
+                {datajud.orgaoJulgador && (
+                  <p><span className="text-[#AA8F71]">Órgão:</span> <span className="text-[#161616]">{datajud.orgaoJulgador}</span></p>
+                )}
+                {datajud.dataAjuizamento && (
+                  <p><span className="text-[#AA8F71]">Ajuizamento:</span> <span className="text-[#161616]">{formatDatetime(datajud.dataAjuizamento)}</span></p>
+                )}
+                {datajud.tribunal && (
+                  <p><span className="text-[#AA8F71]">Tribunal:</span> <span className="text-[#161616] uppercase">{datajud.tribunal}</span></p>
+                )}
+              </div>
+
+              {datajud.movimentos && datajud.movimentos.length > 0 && (
+                <div>
+                  <p className="text-xs text-[#AA8F71] mb-2">Últimas movimentações:</p>
+                  <ul className="space-y-2">
+                    {datajud.movimentos.map((mov, i) => (
+                      <li key={i} className="text-xs border-l-2 border-[#610013]/30 pl-3 group flex justify-between items-start gap-2">
+                        <div>
+                          <span className="font-semibold text-[#610013] block">
+                            {formatDatetime(mov.data)}
+                          </span>
+                          <span className="text-[#161616]/70">{mov.descricao}</span>
+                        </div>
+                        <button
+                          title="Adicionar ao histórico"
+                          onClick={() => handleAdicionarMovimento(`[DataJud] ${mov.descricao}`)}
+                          className="flex-shrink-0 text-[#AA8F71] hover:text-[#610013] transition-colors opacity-0 group-hover:opacity-100 text-base leading-none mt-0.5"
+                        >
+                          +
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {!datajud && !datajudLoading && !datajudError && processo.numProcesso && (
+            <p className="text-xs text-[#AA8F71]">
+              Clique em "Consultar DataJud" para buscar o andamento no tribunal.
+            </p>
+          )}
+        </div>
 
         <Section title="Histórico">
           <Timeline historico={processo.historico} />

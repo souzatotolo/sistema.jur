@@ -20,7 +20,7 @@ const Calendario = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
-  const [sidebarMinimized, setSidebarMinimized] = useState(true);
+  const [sidebarMinimized, setSidebarMinimized] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('sidebarMinimized');
