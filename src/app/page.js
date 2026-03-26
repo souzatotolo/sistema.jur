@@ -13,10 +13,7 @@ import KanbanColumn from '../components/KanbanColumn';
 import ProcessoDetalhe from '../components/ProcessoDetalhe';
 import ProcessoForm from '../components/ProcessoForm';
 import ProcessosTable from '../components/ProcessosTable'; // NOVO: Importação do componente de Tabela
-import {
-  compareProcessosByPriority,
-  compareProcessosForTable,
-} from '../utils/priority-utils'; // utilitários de ordenação
+import { compareProcessosForTable } from '../utils/priority-utils';
 
 // --- CONFIGURAÇÃO DA API ---
 const API_BASE_URL = 'https://api-sistema-jur.onrender.com/api';
@@ -420,77 +417,72 @@ const Processos = () => {
 
   if (isAuthLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-xl text-gray-500">
-        Verificando autenticação...
+      <div className="flex items-center justify-center min-h-screen bg-[#EDE8E5]">
+        <p className="text-[#AA8F71] text-sm">Verificando autenticação...</p>
       </div>
     );
   }
 
   if (!isAuthenticated || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-xl text-gray-500">
-        Carregando processos...
+      <div className="flex items-center justify-center min-h-screen bg-[#EDE8E5]">
+        <p className="text-[#AA8F71] text-sm">Carregando processos...</p>
       </div>
     );
   }
 
   const tabClass = (mode) =>
-    `py-2 px-4 font-semibold text-lg transition-colors border-b-4 ${
+    `py-2 px-4 text-sm font-semibold transition-colors border-b-2 ${
       viewMode === mode
-        ? 'border-red-600 text-red-600'
-        : 'border-transparent text-gray-500 hover:text-red-500'
+        ? 'border-[#610013] text-[#610013]'
+        : 'border-transparent text-[#AA8F71] hover:text-[#610013]'
     }`;
 
   return (
-    <div className="flex min-h-screen w-screen overflow-x-hidden relative">
+    <div className="flex min-h-screen w-screen overflow-x-hidden relative bg-[#EDE8E5]">
       <Sidebar current="Processos" onLogout={logout} />
 
-      <div className="flex-1 flex flex-col h-screen transition-all max-w-full overflow-hidden ml-64">
-        <div className="p-6">
-          {/* Header e Botão Novo Processo */}
-          <header className="flex justify-between items-center mb-4">
-            <h2 className="text-3xl font-bold text-gray-900">
-              Gerenciamento de Processos
-            </h2>
+      <div className="flex-1 flex flex-col h-screen overflow-hidden ml-64">
+        {/* Topbar */}
+        <div className="bg-white border-b border-[#AA8F71]/20 px-6 py-4 flex-shrink-0">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="font-display text-2xl font-bold text-[#161616]">
+                Processos
+              </h1>
+              <p className="text-xs text-[#AA8F71] mt-0.5">
+                {filteredProcessosTable.length} processo
+                {filteredProcessosTable.length !== 1 ? 's' : ''} ativo
+                {filteredProcessosTable.length !== 1 ? 's' : ''}
+              </p>
+            </div>
             <button
-              className="bg-[#A03232] hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md"
+              className="bg-[#610013] hover:bg-[#4a000f] text-white text-sm font-semibold py-2.5 px-5 rounded-lg transition-colors"
               onClick={handleNewProcessStart}
             >
               + Novo Processo
             </button>
-          </header>
-
-          {/* Tabs de Visualização */}
-          <div className="flex border-b border-gray-200 mb-6">
-            <button
-              onClick={() => setViewMode('table')}
-              className={tabClass('table')}
-            >
-              Tabela (Prioridade)
-            </button>
-            {/* <button
-              onClick={() => setViewMode('kanban')}
-              className={tabClass('kanban')}
-            >
-              Quadro (Kanban)
-            </button> */}
           </div>
 
-          {/* Filtros */}
-          <div className="flex flex-wrap gap-4 mb-6 bg-gray-50 p-4 rounded-xl shadow-lg border border-gray-200">
+          {/* Tabs */}
+        </div>
+
+        {/* Filtros */}
+        <div className="px-6 py-3 bg-white border-b border-[#AA8F71]/20 flex-shrink-0">
+          <div className="flex flex-wrap gap-2">
             <input
               type="text"
-              placeholder="Buscar por Cliente, N° Processo ou Próximo Passo"
+              placeholder="Buscar por cliente, processo ou próximo passo..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 min-w-[200px] p-2 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500"
+              className="flex-1 min-w-[220px] px-3 py-2 border border-[#AA8F71]/30 rounded-lg text-sm text-[#161616] bg-[#EDE8E5]/50 focus:outline-none focus:border-[#610013] focus:ring-1 focus:ring-[#610013] transition-colors"
             />
             <select
               value={filterTipo}
               onChange={(e) => setFilterTipo(e.target.value)}
-              className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white min-w-[150px]"
+              className="px-3 py-2 border border-[#AA8F71]/30 rounded-lg text-sm text-[#161616] bg-[#EDE8E5]/50 focus:outline-none focus:border-[#610013] transition-colors min-w-[140px]"
             >
-              <option value="">Todos os Tipos</option>
+              <option value="">Todos os tipos</option>
               {TIPOS_PROCESSO.map((tipo) => (
                 <option key={tipo} value={tipo}>
                   {tipo}
@@ -500,33 +492,35 @@ const Processos = () => {
             <select
               value={filterPrioridade}
               onChange={(e) => setFilterPrioridade(e.target.value)}
-              className="p-3 border border-gray-300 rounded-lg shadow-inner focus:ring-red-500 focus:border-red-500 bg-white min-w-[180px]"
+              className="px-3 py-2 border border-[#AA8F71]/30 rounded-lg text-sm text-[#161616] bg-[#EDE8E5]/50 focus:outline-none focus:border-[#610013] transition-colors min-w-[160px]"
             >
-              <option value="">Todas as Prioridades</option>
-              {PRIORIDADES.map((prioridade) => (
-                <option key={prioridade} value={prioridade}>
-                  {prioridade}
+              <option value="">Todas as prioridades</option>
+              {PRIORIDADES.map((p) => (
+                <option key={p} value={p}>
+                  {p}
                 </option>
               ))}
             </select>
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setFilterTipo('');
-                setFilterPrioridade('');
-              }}
-              className="bg-gray-300 text-gray-800 font-bold py-3 w-25 px-4 rounded-lg hover:bg-gray-400 transition-colors shadow-md"
-            >
-              Limpar
-            </button>
+            {(searchTerm || filterTipo || filterPrioridade) && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilterTipo('');
+                  setFilterPrioridade('');
+                }}
+                className="px-3 py-2 text-sm text-[#AA8F71] hover:text-[#610013] border border-[#AA8F71]/30 rounded-lg bg-white transition-colors"
+              >
+                Limpar
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="flex-grow overflow-auto px-6">
+        {/* Conteúdo */}
+        <div className="flex-1 overflow-auto p-6">
           {viewMode === 'kanban' ? (
-            /* Conteúdo Kanban */
             <DragDropContext onDragEnd={onDragEnd}>
-              <div className="flex space-x-4 overflow-x-auto pb-4 w-full h-full">
+              <div className="flex gap-4 overflow-x-auto pb-4 h-full">
                 {FASES.map((fase) => (
                   <KanbanColumn
                     key={fase}
@@ -540,7 +534,6 @@ const Processos = () => {
               </div>
             </DragDropContext>
           ) : (
-            /* Conteúdo Tabela */
             <ProcessosTable
               processos={filteredProcessosTable}
               onProcessoClick={handleSelectProcesso}
@@ -550,7 +543,7 @@ const Processos = () => {
       </div>
 
       {(isCreating || selectedProcesso) && (
-        <div className="absolute top-0 right-0 h-full w-full sm:w-96 bg-white shadow-xl z-50 overflow-auto transition-transform">
+        <div className="fixed top-0 right-0 h-full z-50">
           {isCreating ? (
             <ProcessoForm
               processo={{}}

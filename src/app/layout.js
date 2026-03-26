@@ -1,26 +1,30 @@
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Playfair_Display, Nunito_Sans } from 'next/font/google';
 import './globals.css';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const playfairDisplay = Playfair_Display({
+  variable: '--font-playfair',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const nunitoSans = Nunito_Sans({
+  variable: '--font-nunito',
   subsets: ['latin'],
+  weight: ['300', '400', '600', '700', '800'],
+  display: 'swap',
 });
 
 export const metadata = {
   title: 'Sistema Jurídico - Marta Neumann Advogada',
-  description: 'sistema de gestão de processos jurídicos',
+  description: 'Sistema de gestão de processos jurídicos',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${playfairDisplay.variable} ${nunitoSans.variable} antialiased`}
       >
         {children}
       </body>
