@@ -4,27 +4,47 @@ import { Draggable } from 'react-beautiful-dnd';
 
 const getPriorityBorderColor = (status) => {
   switch (status) {
-    case 'Prazo Processual':                  return 'border-l-red-600';
-    case 'Fazer com prioridade':              return 'border-l-orange-500';
-    case 'Aguardando (Cliente)':              return 'border-l-amber-500';
-    case 'Aguardando (Andamento Processual)': return 'border-l-yellow-500';
-    case 'Audiência Marcada':                 return 'border-l-purple-500';
-    case 'Finalizado':                        return 'border-l-green-500';
-    case 'Arquivado':                         return 'border-l-[#AA8F71]';
-    default:                                  return 'border-l-[#D69957]';
+    case 'Prazo Processual':
+      return 'border-l-red-600';
+    case 'Fazer com prioridade':
+      return 'border-l-orange-500';
+    case 'Aguardando (Cliente)':
+      return 'border-l-amber-500';
+    case 'Aguardando (Andamento Processual)':
+      return 'border-l-yellow-500';
+    case 'Audiência Marcada':
+      return 'border-l-purple-500';
+    case 'Em Perícia':
+      return 'border-l-purple-500';
+    case 'Finalizado':
+      return 'border-l-green-500';
+    case 'Arquivado':
+      return 'border-l-[#AA8F71]';
+    default:
+      return 'border-l-[#D69957]';
   }
 };
 
 const getPriorityTextColor = (status) => {
   switch (status) {
-    case 'Prazo Processual':                  return 'text-red-700';
-    case 'Fazer com prioridade':              return 'text-orange-700';
-    case 'Aguardando (Cliente)':              return 'text-amber-700';
-    case 'Aguardando (Andamento Processual)': return 'text-yellow-700';
-    case 'Audiência Marcada':                 return 'text-purple-700';
-    case 'Finalizado':                        return 'text-green-700';
-    case 'Arquivado':                         return 'text-[#AA8F71]';
-    default:                                  return 'text-[#610013]';
+    case 'Prazo Processual':
+      return 'text-red-700';
+    case 'Fazer com prioridade':
+      return 'text-orange-700';
+    case 'Aguardando (Cliente)':
+      return 'text-amber-700';
+    case 'Aguardando (Andamento Processual)':
+      return 'text-yellow-700';
+    case 'Audiência Marcada':
+      return 'text-purple-700';
+    case 'Em Perícia':
+      return 'text-purple-700';
+    case 'Finalizado':
+      return 'text-green-700';
+    case 'Arquivado':
+      return 'text-[#AA8F71]';
+    default:
+      return 'text-[#610013]';
   }
 };
 
