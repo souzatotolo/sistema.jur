@@ -14,7 +14,7 @@ const getPriorityBorderColor = (status) => {
       return 'border-l-yellow-500';
     case 'Audiência Marcada':
       return 'border-l-purple-500';
-    case 'Em Perícia':
+    case 'Perícia agendada':
       return 'border-l-purple-500';
     case 'Finalizado':
       return 'border-l-green-500';
@@ -37,7 +37,7 @@ const getPriorityTextColor = (status) => {
       return 'text-yellow-700';
     case 'Audiência Marcada':
       return 'text-purple-700';
-    case 'Em Perícia':
+    case 'Perícia agendada':
       return 'text-purple-700';
     case 'Finalizado':
       return 'text-green-700';

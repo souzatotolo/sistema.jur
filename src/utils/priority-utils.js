@@ -10,7 +10,7 @@ export const PRIORITY_RANK = {
   'Em analise - Iraci': 6,
   'Em analise - Ivana': 7,
   'Audiência Marcada': 8,
-  'Em Perícia': 8,
+  'Perícia agendada': 8,
   Finalizado: 9,
   Arquivado: 10,
 };
@@ -33,7 +33,7 @@ export const getPriorityColor = (status) => {
       return 'purple'; // roxo
     case 'Audiência Marcada':
       return 'red'; // amarelo / âmbar
-    case 'Em Perícia':
+    case 'Perícia agendada':
       return 'red'; // amarelo / âmbar
     case 'Em analise - Ivana':
       return 'purple'; // marrom claro / âmbar

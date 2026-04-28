@@ -50,7 +50,7 @@ const PRIORIDADES = [
   'Em analise - Iraci',
   'Em analise - Ivana',
   'Audiência Marcada',
-  'Em Perícia',
+  'Perícia agendada',
   'Finalizado',
   'Arquivado',
 ];
